@@ -1,0 +1,6 @@
+[B|b]uild
+*.dol
+*.elf
+*.[a|o]
+*.list
+*.map
