@@ -1,6 +1,7 @@
 /*
- *  Reggie Dumper
- *  Copyright (C) 2012 AerialX, megazig
+ *  Luma's FST Dumper
+ *  Based on Reggie Dumper
+ *  Copyright (C) 2012,2018 AerialX, megazig, aplumafreak500
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -26,6 +27,7 @@
 #include <unistd.h>
 #include <malloc.h>
 #include <sys/stat.h>
+#include <sys/param.h>
 
 #include <fat.h>
 
@@ -49,13 +51,10 @@ static u32 partition_info[24] ATTRIBUTE_ALIGN(32);
 struct DiscNode
 {
 	u8 Type;
-	u8 NameOffsetMSB;
-	u16 NameOffset; //really a u24
+	u32 NameOffset:24;
 	u32 DataOffset;
 	u32 Size;
-	u32 GetNameOffset() { return ((u32)NameOffsetMSB << 16) | NameOffset; }
-	void SetNameOffset(u32 offset) { NameOffset = (u16)offset; NameOffsetMSB = offset >> 16; }
-	const char* GetName() { return (const char*)(fst + fst->Size) + GetNameOffset(); }
+	const char* GetName() { return (const char*)(fst + fst->Size) + NameOffset; }
 } __attribute__((packed));
 
 static DiscNode* RVL_FindNode(const char* name, DiscNode* root, bool recursive)
@@ -64,7 +63,7 @@ static DiscNode* RVL_FindNode(const char* name, DiscNode* root, bool recursive)
 	int offset = root - fst;
 	DiscNode* node = root;
 	while ((void*)node < (void*)nametable) {
-		if (!strcasecmp(nametable + node->GetNameOffset(), name))
+		if (!strcasecmp(nametable + node->NameOffset, name))
 			return node;
 
 		if (recursive || node->Type == 0)
@@ -231,15 +230,15 @@ bool DumpFolder(const char* disc, string path)
 	return DumpFolder(node, path);
 }
 
-bool DumpMainDol(void)
+bool DumpMainDol(string path)
 {
-	FILE *header_nfo = fopen("/reggie/header.bin", "wb");
+	FILE *header_nfo = fopen(PathCombine(path, "header.bin").c_str(), "wb");
 	if (!header_nfo)
 		return false;
 
 	u32 written = fwrite((void*)0x80000000, 1, 0x20, header_nfo);
 	if (written != 0x20) {
-		printf("Expected %d got %d\n", 0x20, written);
+		printf("Expected %d got %ld\n", 0x20, written);
 		fclose(header_nfo);
 		return false;
 	}
@@ -275,10 +274,10 @@ bool DumpMainDol(void)
 		return false;
 	}
 
-	FILE *main_dol = fopen("/reggie/main.dol", "wb");
+	FILE *main_dol = fopen(PathCombine(path, "main.dol").c_str(), "wb");
 	if (!main_dol)
 	{
-		printf("Failed to open /reggie/main.dol for write\n");
+		printf("Failed to open %s/main.dol for write\n", PathCombine(path, "main.dol").c_str());
 		free(dol);
 		return false;
 	}
@@ -287,7 +286,7 @@ bool DumpMainDol(void)
 	written = fwrite(dol, 1, max, main_dol);
 	if (written != max)
 	{
-		printf("Expected %d got %d\n", max, written);
+		printf("Expected %ld got %ld\n", max, written);
 		ret = false;
 	}
 	else
@@ -311,7 +310,7 @@ int main(int argc, char **argv)
 	VIDEO_SetBlack(FALSE); VIDEO_Flush(); VIDEO_WaitVSync(); VIDEO_WaitVSync();
 
 	printf("\x1b[2;0H");
-	printf("Reggie's Dump v1.0\n\n");
+	printf("Luma's FST Dumper v1.0\nBased on Reggie! Dumper\n\n");
 	printf("Press Home at any time to exit.\n");
 
 	printf("Looking for SD/USB... ");
@@ -322,7 +321,6 @@ int main(int argc, char **argv)
 
 	WDVD_Init();
 
-reinsert_disc:
 	printf("Insert disc... ");
 
 	WDVD_Reset();
@@ -334,10 +332,7 @@ reinsert_disc:
 
 	printf("Checking disc...\n");
 
-	if (WDVD_LowReadDiskId() || memcmp((void*)0x80000000, "SMN", 3)) {
-		printf("This is not New Super Mario Bros. Wii\n");
-		goto reinsert_disc;
-	}
+	WDVD_LowReadDiskId();
 
 	if (!Launcher_ReadFST()) {
 		printf("There was an error reading the disc. Press Home to exit, and try again.\n");
@@ -345,26 +340,24 @@ reinsert_disc:
 			HOME_EXIT();
 	}
 
-	printf("Press A to dump the bare minimum for Reggie! or B to dump the entire disc.\n");
-	printf("Press 2 to dump entire disc and main.dol\n");
+	printf("Press A to dump the entire disc.\n");
 	int select = -1;
 	while (select < 0) {
 		HOME_EXIT();
 		if (WPAD_ButtonsDown(0) & WPAD_BUTTON_A)
 			select = 0;
-		else if (WPAD_ButtonsDown(0) & WPAD_BUTTON_B)
-			select = 1;
-		else if (WPAD_ButtonsDown(0) & WPAD_BUTTON_2)
-			select = 2;
 	}
 
 	printf("Dumping files off of the disc...\n");
-	mkdir("/reggie", 0777);
+	
+	char GameID[4];
+	memcpy((u32*)0x80000000, &GameID, 4);
+	char* DumpDirectory = strcpy(GameID, "/FSTDump");
+	mkdir("/FSTDump", 0777);
+	mkdir(DumpDirectory, 0777);
+	DumpMainDol(DumpDirectory);
 
-	if (select == 2)
-		DumpMainDol();
-
-	if (!DumpFolder(select ? "/" : "/Stage", select ? "/reggie" : "/reggie/stage")) {
+	if (!DumpFolder("/",DumpDirectory)) {
 		printf("\nThe files could not be read from disc. Press Home to exit, and try again.\n");
 		while (true)
 			HOME_EXIT();
@@ -373,7 +366,7 @@ reinsert_disc:
 	fatUnmount("sd:");
 	fatUnmount("usb:");
 
-	printf("\nWe're all done. Enjoy Reggie!\n");
+	printf("\nWe're all done.\n");
 	printf("Press Home to exit.\n\n\n");
 	while (true)
 		HOME_EXIT();
