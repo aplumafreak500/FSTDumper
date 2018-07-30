@@ -230,21 +230,73 @@ bool DumpFolder(const char* disc, string path)
 	return DumpFolder(node, path);
 }
 
-bool DumpMainDol(string path)
+bool DumpEarlyMemory(string path)
 {
 	FILE *header_nfo = fopen(PathCombine(path, "header.bin").c_str(), "wb");
 	if (!header_nfo)
 		return false;
 
-	u32 written = fwrite((void*)0x80000000, 1, 0x20, header_nfo);
+	u32 written = fwrite((void*)0x80000000, 1, 0x4000, header_nfo);
 	if (written != 0x20) {
-		printf("Expected %d got %ld\n", 0x20, written);
+		printf("Expected %d got %ld\n", 0x4000, written);
 		fclose(header_nfo);
 		return false;
 	}
 	fclose(header_nfo);
 	printf("Dumped header.bin\n");
+	return true;
+}
 
+bool DumpApploader(string path) 
+{
+	u8 * apl_nfo = (u8*)memalign(32, 0x20);
+	if (!apl_nfo)
+		return false;
+
+	WDVD_LowRead(apl_nfo, 0x20, 0x2440);
+	u32 max = 0;
+        u32 offset = 0;
+        u32 size = *(u32 *)(apl_nfo + 0x14);
+        if ((offset + size) > max) max = offset + size;
+	free(apl_nfo);
+
+	void * apl = memalign(32, max);
+	if (!apl)
+		return false;
+
+	if (WDVD_LowRead(apl, max, 0x2440))
+	{
+		printf("Failed to read apploader.img\n");
+		free(apl);
+		return false;
+	}
+
+	FILE *appl_img = fopen(PathCombine(path, "apploader.img").c_str(), "wb");
+	if (!appl_img)
+	{
+		printf("Failed to open %s/apploader.img for write\n", PathCombine(path, "apploader.img").c_str());
+		free(apl);
+		return false;
+	}
+
+	bool ret = true;
+	u32 written = fwrite(apl, 1, max, appl_img);
+	if (written != max)
+	{
+		printf("Expected %ld got %ld\n", max, written);
+		ret = false;
+	}
+	else
+	{
+		printf("Dumped apploader.img\n");
+	}
+	fclose(appl_img);
+	free(apl);
+	return ret;
+}
+
+bool DumpMainDol(string path) 
+{
 	u8 * dol_nfo = (u8*)memalign(32, 0x100);
 	if (!dol_nfo)
 		return false;
@@ -283,7 +335,7 @@ bool DumpMainDol(string path)
 	}
 
 	bool ret = true;
-	written = fwrite(dol, 1, max, main_dol);
+	u32 written = fwrite(dol, 1, max, main_dol);
 	if (written != max)
 	{
 		printf("Expected %ld got %ld\n", max, written);
@@ -334,12 +386,6 @@ int main(int argc, char **argv)
 
 	WDVD_LowReadDiskId();
 
-	if (!Launcher_ReadFST()) {
-		printf("There was an error reading the disc. Press Home to exit, and try again.\n");
-		while (true)
-			HOME_EXIT();
-	}
-
 	printf("Press A to dump the entire disc.\n");
 	int select = -1;
 	while (select < 0) {
@@ -350,12 +396,20 @@ int main(int argc, char **argv)
 
 	printf("Dumping files off of the disc...\n");
 	
+	if (!Launcher_ReadFST()) {
+		printf("There was an error reading the disc. Press Home to exit, and try again.\n");
+		while (true)
+			HOME_EXIT();
+	}
+	
 	char GameID[4];
 	memcpy((u32*)0x80000000, &GameID, 4);
 	char* DumpDirectory = strcpy(GameID, "/FSTDump");
 	mkdir("/FSTDump", 0777);
 	mkdir(DumpDirectory, 0777);
 	DumpMainDol(DumpDirectory);
+	DumpEarlyMemory(DumpDirectory);
+	DumpApploader(DumpDirectory);
 
 	if (!DumpFolder("/",DumpDirectory)) {
 		printf("\nThe files could not be read from disc. Press Home to exit, and try again.\n");
