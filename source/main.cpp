@@ -36,8 +36,6 @@ using std::string;
 
 #include "wdvd.h"
 
-#define PART_OFFSET			0x00040000
-
 #define min(a,b) ((a)>(b) ? (b) : (a))
 #define max(a,b) ((a)>(b) ? (a) : (b))
 
@@ -46,19 +44,17 @@ static GXRModeObj *rmode = NULL;
 
 struct DiscNode;
 static DiscNode* fst = NULL;
-static u32 partition_info[24] ATTRIBUTE_ALIGN(32);
-
-struct DiscNode
-{
+struct DiscNode {
 	u8 Type;
 	u32 NameOffset:24;
 	u32 DataOffset;
 	u32 Size;
-	const char* GetName() { return (const char*)(fst + fst->Size) + NameOffset; }
+	const char* GetName() {
+		return (const char*)(fst + fst->Size) + NameOffset;
+	}
 } __attribute__((packed));
 
-static DiscNode* RVL_FindNode(const char* name, DiscNode* root, bool recursive)
-{
+static DiscNode* RVL_FindNode(const char* name, DiscNode* root, bool recursive) {
 	const char* nametable = (const char*)(fst + fst->Size);
 	int offset = root - fst;
 	DiscNode* node = root;
@@ -75,8 +71,7 @@ static DiscNode* RVL_FindNode(const char* name, DiscNode* root, bool recursive)
 	return NULL;
 }
 
-DiscNode* RVL_FindNode(const char* fstname)
-{
+DiscNode* RVL_FindNode(const char* fstname) {
 	if (fstname[0] != '/')
 		return RVL_FindNode(fstname, fst, true);
 
@@ -100,22 +95,38 @@ DiscNode* RVL_FindNode(const char* fstname)
 }
 
 static u32 fstdata[0x40] ATTRIBUTE_ALIGN(32);
-bool Launcher_ReadFST()
-{
-	memset(partition_info, 0, sizeof(partition_info));
-	if (WDVD_LowUnencryptedRead(partition_info, 0x20, PART_OFFSET) || partition_info[0] == 0)
-		return false;
-	if (WDVD_LowUnencryptedRead(partition_info + 8, max(4, min(8, partition_info[0])) * 8, (u64)partition_info[1] << 2))
-		return false;
-	u32 i;
-	for (i = 0; i < partition_info[0]; i++)
-		if (partition_info[i * 2 + 8 + 1] == 0)
-			break;
-	if (i >= partition_info[0])
-		return false;
-	if (WDVD_LowOpenPartition((u64)partition_info[i * 2 + 8] << 2))
-		return false;
 
+struct PartitionTable {
+	u32 PartitionEntryCount;
+	u32 PartitionEntryOffset;
+} __attribute__((packed));
+
+struct PartitionTableEntry {
+	u32 PartitionOffset;
+	u32 PartitionID; // 0: Game 1: Update 2: Channel else: Brawl VC
+} __attribute__((packed));
+
+static PartitionTable partitionTableEntries[4];
+
+bool ReadPartitionTable() {
+	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0].PartitionEntryCount == 0)
+		return false;
+	PartitionTableEntry* partitionTables[4];
+	for (u32 i = 0; i < 4; i++) {
+		WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount));
+	}
+	u32 i;
+	for (i = 0; i < partitionTableEntries[0].PartitionEntryCount; i++)
+		if (partitionTables[0]->PartitionID == 0)
+			break;
+	if (i >= partitionTableEntries[0].PartitionEntryCount)
+		return false;
+	if (WDVD_LowOpenPartition((u64) partitionTables[0]->PartitionOffset << 2))
+		return false;
+	return true;
+}
+
+bool Launcher_ReadFST() {
 	if (WDVD_LowRead(fstdata, 0x40, 0x420))
 		return false;
 
@@ -127,8 +138,7 @@ bool Launcher_ReadFST()
 	return true;
 }
 
-bool Launcher_DiscInserted()
-{
+bool Launcher_DiscInserted() {
 	bool cover;
 	if (!WDVD_VerifyCover(&cover))
 		return cover;
@@ -146,8 +156,7 @@ bool Launcher_DiscInserted()
 	VIDEO_WaitVSync(); \
 }
 
-string PathCombine(string path, string file)
-{
+string PathCombine(string path, string file) {
 	if (path.empty())
 		return file;
 	if (file.empty())
@@ -180,8 +189,7 @@ string PathCombine(string path, string file)
 	return path + "/" + file;
 }
 
-bool DumpFolder(DiscNode* node, string path)
-{
+bool DumpFolder(DiscNode* node, string path) {
 	if (!node)
 		return false;
 
@@ -224,14 +232,12 @@ bool DumpFolder(DiscNode* node, string path)
 	return true;
 }
 
-bool DumpFolder(const char* disc, string path)
-{
+bool DumpFolder(const char* disc, string path) {
 	DiscNode* node = !strcmp(disc, "/") ? fst : RVL_FindNode(disc);
 	return DumpFolder(node, path);
 }
 
-bool DumpEarlyMemory(string path)
-{
+bool DumpEarlyMemory(string path) {
 	FILE *header_nfo = fopen(PathCombine(path, "header.bin").c_str(), "wb");
 	if (!header_nfo)
 		return false;
@@ -255,8 +261,7 @@ struct ApploaderHeader {
 	u32 padding;
 };
 
-bool DumpApploader(string path) 
-{
+bool DumpApploader(string path) {
 	ApploaderHeader* apl_nfo = NULL;
 	WDVD_LowRead(apl_nfo, 0x20, 0x2440);
 	if (!apl_nfo->Size1) return false;
@@ -414,7 +419,7 @@ int main(void) {
 
 	printf("Dumping files off of the disc...\n");
 	
-	if (!Launcher_ReadFST()) {
+	if (!(ReadPartitionTable() && Launcher_ReadFST())) {
 		printf("There was an error reading the disc. Press Home to exit, and try again.\n");
 		while (true)
 			HOME_EXIT();
