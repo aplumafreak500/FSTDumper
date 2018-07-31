@@ -247,16 +247,22 @@ bool DumpEarlyMemory(string path)
 	return true;
 }
 
+struct ApploaderHeader {
+	char BuildDateString[0x10];
+	u32 Entrypoint;
+	u32 Size1;
+	u32 Size2;
+	u32 padding;
+};
+
 bool DumpApploader(string path) 
 {
-	u8 * apl_nfo = (u8*)memalign(32, 0x20);
-	if (!apl_nfo)
-		return false;
-
+	ApploaderHeader* apl_nfo = NULL;
 	WDVD_LowRead(apl_nfo, 0x20, 0x2440);
+	if (!apl_nfo->Size1) return false;
 	u32 max = 0;
-        u32 offset = 0;
-        u32 size = *(u32 *)(apl_nfo + 0x14);
+        u32 offset = 0x20;
+        u32 size = apl_nfo->Size1 + apl_nfo -> Size2;
         if ((offset + size) > max) max = offset + size;
 	free(apl_nfo);
 
@@ -360,8 +366,7 @@ bool DumpMainDol(string path) {
 	return ret;
 }
 
-int main(int argc, char **argv)
-{
+int main(void) {
 	VIDEO_Init();
 	WPAD_Init();
 	rmode = VIDEO_GetPreferredMode(NULL);
@@ -369,7 +374,10 @@ int main(int argc, char **argv)
 	CON_Init(xfb, 20, 20, rmode->fbWidth, rmode->xfbHeight, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
 	VIDEO_Configure(rmode);
 	VIDEO_SetNextFramebuffer(xfb);
-	VIDEO_SetBlack(FALSE); VIDEO_Flush(); VIDEO_WaitVSync(); VIDEO_WaitVSync();
+	VIDEO_SetBlack(FALSE);
+	VIDEO_Flush();
+	VIDEO_WaitVSync();
+	VIDEO_WaitVSync();
 
 	printf("\x1b[2;0H");
 	printf("Luma's FST Dumper v1.0\nBased on Reggie! Dumper\n\n");
