@@ -113,7 +113,8 @@ bool ReadPartitionTable() {
 		return false;
 	PartitionTableEntry* partitionTables[4];
 	for (u32 i = 0; i < 4; i++) {
-		WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount));
+		if (WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount)));
+		return false;
 	}
 	u32 i;
 	for (i = 0; i < partitionTableEntries[0].PartitionEntryCount; i++)
@@ -125,6 +126,8 @@ bool ReadPartitionTable() {
 		return false;
 	return true;
 }
+
+
 
 bool Launcher_ReadFST() {
 	if (WDVD_LowRead(fstdata, 0x40, 0x420))
