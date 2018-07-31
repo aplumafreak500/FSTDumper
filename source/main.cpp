@@ -413,7 +413,7 @@ int main(int argc, char **argv)
 	}
 	
 	char GameID[4];
-	memcpy((u32*)0x80000000, &GameID, 4);
+	memcpy(&GameID, (u32*)0x80000000, 4);
 	char* DumpDirectory = strcpy(GameID, "/FSTDump");
 	mkdir("/FSTDump", 0777);
 	mkdir(DumpDirectory, 0777);
