@@ -295,24 +295,34 @@ bool DumpApploader(string path)
 	return ret;
 }
 
-bool DumpMainDol(string path) 
-{
-	u8 * dol_nfo = (u8*)memalign(32, 0x100);
-	if (!dol_nfo)
-		return false;
+struct DolHeader {
+	u32 TextSectionOffsets[7];
+	u32 DataSectionOffsets[11];
+	u32 TextSectionLoadAddresses[7];
+	u32 DataSectionLoadAddresses[11];
+	u32 TextSectionSizes[7];
+	u32 DataSectionSizes[11];
+	u32 BSSAddress;
+	u32 BSSSize;
+	u32 Entrypoint;
+	u32 padding[7];
+};
 
+bool DumpMainDol(string path) {
+	DolHeader* dol_nfo = NULL;
 	WDVD_LowRead(dol_nfo, 0x100, (u64)fstdata[0] << 2);
-    u32 max = 0;
-    for (u32 i = 0; i < 7; i++) {
-        u32 offset = *(u32 *)(dol_nfo + (i * 4));
-        u32 size = *(u32 *)(dol_nfo + (i * 4) + 0x90);
-        if ((offset + size) > max) max = offset + size;
-    }
-    for (u32 i = 0; i < 11; i++) {
-        u32 offset = *(u32 *)(dol_nfo + (i * 4) + 0x1c);
-        u32 size = *(u32 *)(dol_nfo + (i * 4) + 0xac);
-        if ((offset + size) > max) max = offset + size;
-    }
+	if (!dol_nfo->TextSectionOffsets[0]) return false;
+	u32 max = 0;
+	for (u32 i = 0; i < 7; i++) {
+		u32 offset = dol_nfo->TextSectionOffsets[i];
+		u32 size = dol_nfo->TextSectionSizes[i];
+		if ((offset + size) > max) max = offset + size;
+	}
+	for (u32 i = 0; i < 11; i++) {
+		u32 offset = dol_nfo->DataSectionOffsets[i];
+		u32 size = dol_nfo->DataSectionSizes[i];
+		if ((offset + size) > max) max = offset + size;
+	}
 	free(dol_nfo);
 
 	void * dol = memalign(32, max);
