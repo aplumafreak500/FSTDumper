@@ -34,6 +34,7 @@
 #include <string>
 using std::string;
 
+#include "main.h"
 #include "wdvd.h"
 
 #define min(a,b) ((a)>(b) ? (b) : (a))
@@ -53,6 +54,8 @@ struct DiscNode {
 		return (const char*)(fst + fst->Size) + NameOffset;
 	}
 } __attribute__((packed));
+
+static Partition* partition_data;
 
 static DiscNode* RVL_FindNode(const char* name, DiscNode* root, bool recursive) {
 	const char* nametable = (const char*)(fst + fst->Size);
@@ -94,71 +97,6 @@ DiscNode* RVL_FindNode(const char* fstname) {
 	return NULL;
 }
 
-static u32 fstdata[0x40] ATTRIBUTE_ALIGN(32);
-
-struct PartitionTable {
-	u32 PartitionEntryCount;
-	u32 PartitionEntryOffset;
-} __attribute__((packed));
-
-struct PartitionTableEntry {
-	u32 PartitionOffset;
-	u32 PartitionID; // 0: Game 1: Update 2: Channel else: Brawl VC
-} __attribute__((packed));
-
-static PartitionTable partitionTableEntries[4];
-
-bool ReadPartitionTable() {
-	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0].PartitionEntryCount == 0)
-		return false;
-	PartitionTableEntry* partitionTables[4];
-	for (u32 i = 0; i < 4; i++) {
-		if (WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount)));
-		return false;
-	}
-	u32 i;
-	for (i = 0; i < partitionTableEntries[0].PartitionEntryCount; i++)
-		if (partitionTables[0]->PartitionID == 0)
-			break;
-	if (i >= partitionTableEntries[0].PartitionEntryCount)
-		return false;
-	if (WDVD_LowOpenPartition((u64) partitionTables[0]->PartitionOffset << 2))
-		return false;
-	return true;
-}
-
-
-
-bool Launcher_ReadFST() {
-	if (WDVD_LowRead(fstdata, 0x40, 0x420))
-		return false;
-
-	fstdata[2] <<= 2;
-	fst = (DiscNode*)memalign(32, fstdata[2]);
-	if (WDVD_LowRead(fst, fstdata[2], (u64)fstdata[1] << 2))
-		return false;
-
-	return true;
-}
-
-bool Launcher_DiscInserted() {
-	bool cover;
-	if (!WDVD_VerifyCover(&cover))
-		return cover;
-	return false;
-}
-
-#define HOME_EXIT() { \
-	WPAD_ScanPads(); \
-	if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) { \
-		if (*(vu32*)0x80001804 != 0x53545542) \
-			SYS_ResetSystem(SYS_RETURNTOMENU, 0, 0); \
-		else \
-			return 0; \
-	} \
-	VIDEO_WaitVSync(); \
-}
-
 string PathCombine(string path, string file) {
 	if (path.empty())
 		return file;
@@ -190,6 +128,232 @@ string PathCombine(string path, string file) {
 		return path + file;
 
 	return path + "/" + file;
+}
+
+void DumpDiscHeader(string path) {
+
+	// header
+	
+	DiscHeader* hdr = NULL;
+
+	WDVD_LowUnencryptedRead(hdr, 0x80, 0);
+	
+	FILE *hdr_bin = fopen(PathCombine(path, "header.bin").c_str(), "wb");
+	if (!hdr_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "header.bin").c_str());
+	}
+	u32 written = fwrite(&hdr, 1, 0x80, hdr_bin);
+	if (written != 0x80) {
+		printf("Expected %d got %ld\n", 0x80, written);
+		fclose(hdr_bin);
+	}
+	fclose(hdr_bin);
+	free(hdr);
+	printf("Dumped header.bin\n");
+	
+	// region.bin
+	
+	RegionSettings* rgn = NULL;
+
+	WDVD_LowUnencryptedRead(rgn, 0x20, 0);
+	
+	FILE *rgn_bin = fopen(PathCombine(path, "region.bin").c_str(), "wb");
+	if (!rgn_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "region.bin").c_str());
+	}
+	written = fwrite(&rgn, 1, 0x20, rgn_bin);
+	if (written != 0x20) {
+		printf("Expected %d got %ld\n", 0x20, written);
+		fclose(rgn_bin);
+	}
+	fclose(rgn_bin);
+	free(rgn);
+	printf("Dumped header.bin\n");
+}
+
+bool ReadPartitionTable(string path) {
+	PartitionTable partitionTableEntries[4];
+	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0].PartitionEntryCount == 0)
+		return false;
+	PartitionTableEntry* partitionTables[4];
+	for (u32 i = 0; i < 4; i++) {
+		if (WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount)));
+		return false;
+	}
+	u32 i;
+	for (i = 0; i < partitionTableEntries[0].PartitionEntryCount; i++)
+		if (partitionTables[0]->PartitionID == 0)
+			break;
+	if (i >= partitionTableEntries[0].PartitionEntryCount)
+		return false;
+		
+	// read in ticket, tmd, cert, and h3 before calling WDVD_LowOpenPartition
+
+	PartitionHeader* part = NULL;
+	WDVD_LowUnencryptedRead(part, 0x2c0, 0);
+	
+	// ticket
+	
+	FILE *tik_bin = fopen(PathCombine(path, "ticket.bin").c_str(), "wb");
+	if (!tik_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "ticket.bin").c_str());
+	}
+	u32 written = fwrite(&part->ticket, 1, 0x2a4, tik_bin);
+	if (written != 0x2a4) {
+		printf("Expected %d got %ld\n", 0x2a4, written);
+		fclose(tik_bin);
+	}
+	fclose(tik_bin);
+	printf("Dumped ticket.bin\n");
+	
+	// TMD
+	
+	FILE *tmd_bin = fopen(PathCombine(path, "tmd.bin").c_str(), "wb");
+	if (!tmd_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "tmd.bin").c_str());
+	}
+	
+	u32* tmd = NULL; // tmd can be variable size
+	
+	WDVD_LowUnencryptedRead(tmd, part->tmdSize, (u64) part->tmdOffset << 2);
+	
+	written = fwrite(tmd, 1, part->tmdSize, tmd_bin);
+	if (written != part->tmdSize) {
+		printf("Expected %ld got %ld\n", part->tmdSize, written);
+		fclose(tmd_bin);
+	}
+	fclose(tmd_bin);
+	free(tmd);
+	printf("Dumped tmd.bin\n");
+	
+	// Certs
+	
+	FILE *crt_bin = fopen(PathCombine(path, "cert.bin").c_str(), "wb");
+	if (!crt_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "cert.bin").c_str());
+	}
+	
+	u32* crt = NULL; // certs can be variable size
+	
+	WDVD_LowUnencryptedRead(crt, part->certSize, (u64) part->certOffset << 2);
+	
+	written = fwrite(tmd, 1, part->certSize, crt_bin);
+	if (written != part->certSize) {
+		printf("Expected %ld got %ld\n", part->certSize, written);
+		fclose(crt_bin);
+	}
+	fclose(crt_bin);
+	free(crt);
+	printf("Dumped cert.bin\n");
+	
+	// H3
+	
+	FILE *h3_bin = fopen(PathCombine(path, "h3.bin").c_str(), "wb");
+	if (!h3_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "h3.bin").c_str());
+	}
+	
+	u32* h3 = NULL; 
+	
+	WDVD_LowUnencryptedRead(h3, 0x18000, (u64) part->h3Offset << 2);
+	
+	written = fwrite(h3, 1, 0x18000, h3_bin);
+	if (written != 0x18000) {
+		printf("Expected %d got %ld\n", 0x18000, written);
+		fclose(h3_bin);
+	}
+	fclose(h3_bin);
+	free(h3);
+	printf("Dumped h3.bin\n");
+	
+	free(part);
+	
+	if (WDVD_LowOpenPartition((u64) partitionTables[0]->PartitionOffset << 2))
+		return false;
+	free(partitionTableEntries);
+	free(partitionTables);
+	return true;
+}
+
+bool Launcher_ReadFST(string path) {
+
+	// partition header
+
+	if (WDVD_LowRead(partition_data, 0x2440, 0))
+		return false;
+	
+	FILE *boot_bin = fopen(PathCombine(path, "boot.bin").c_str(), "wb");
+	if (!boot_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "boot.bin").c_str());
+	}
+	u32 written = fwrite(&partition_data->boot_bin, 1, 0x420, boot_bin); // reads past boot.bin, but memory was set anyway by above WDVD_LowRead call, so no worrying about leaks, etc.
+	if (written != 0x420) {
+		printf("Expected %d got %ld\n", 0x420, written);
+		fclose(boot_bin);
+	}
+	fclose(boot_bin);
+	printf("Dumped boot.bin\n");
+	
+	// bi2
+	
+	FILE *bi2_bin = fopen(PathCombine(path, "bi2.bin").c_str(), "wb");
+	if (!bi2_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "bi2.bin").c_str());
+	}
+	written = fwrite(&partition_data->bi2_bin, 1, 0x2000, bi2_bin);
+	if (written != 0x2000) {
+		printf("Expected %d got %ld\n", 0x2000, written);
+		fclose(bi2_bin);
+	}
+	fclose(bi2_bin);
+	printf("Dumped bi2.bin\n");
+	
+	// fst
+
+	fst = (DiscNode*)memalign(32, (u64) partition_data->fst_size << 2);
+	if (WDVD_LowRead(fst, partition_data->fst_size, (u64) partition_data->fst_offset << 2))
+		return false;
+	
+	FILE *fst_bin = fopen(PathCombine(path, "fst.bin").c_str(), "wb");
+	if (!fst_bin)
+	{
+		printf("Failed to open %s for write\n", PathCombine(path, "fst.bin").c_str());
+	}
+	written = fwrite(fst, 1, partition_data->fst_size, fst_bin);
+	if (written != partition_data->fst_size) {
+		printf("Expected %ld got %ld\n", partition_data->fst_size, written);
+		fclose(fst_bin);
+	}
+	fclose(fst_bin);
+	printf("Dumped fst.bin\n");
+	
+	return true;
+}
+
+bool Launcher_DiscInserted() {
+	bool cover;
+	if (!WDVD_VerifyCover(&cover))
+		return cover;
+	return false;
+}
+
+#define HOME_EXIT() { \
+	WPAD_ScanPads(); \
+	if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) { \
+		if (*(vu32*)0x80001804 != 0x53545542) \
+			SYS_ResetSystem(SYS_RETURNTOMENU, 0, 0); \
+		else \
+			return 0; \
+	} \
+	VIDEO_WaitVSync(); \
 }
 
 bool DumpFolder(DiscNode* node, string path) {
@@ -241,28 +405,20 @@ bool DumpFolder(const char* disc, string path) {
 }
 
 bool DumpEarlyMemory(string path) {
-	FILE *header_nfo = fopen(PathCombine(path, "header.bin").c_str(), "wb");
+	FILE *header_nfo = fopen(PathCombine(path, "earlymem.bin").c_str(), "wb");
 	if (!header_nfo)
 		return false;
 
 	u32 written = fwrite((void*)0x80000000, 1, 0x4000, header_nfo);
-	if (written != 0x20) {
+	if (written != 0x4000) {
 		printf("Expected %d got %ld\n", 0x4000, written);
 		fclose(header_nfo);
 		return false;
 	}
 	fclose(header_nfo);
-	printf("Dumped header.bin\n");
+	printf("Dumped earlymem.bin\n");
 	return true;
 }
-
-struct ApploaderHeader {
-	char BuildDateString[0x10];
-	u32 Entrypoint;
-	u32 Size1;
-	u32 Size2;
-	u32 padding;
-};
 
 bool DumpApploader(string path) {
 	ApploaderHeader* apl_nfo = NULL;
@@ -288,7 +444,7 @@ bool DumpApploader(string path) {
 	FILE *appl_img = fopen(PathCombine(path, "apploader.img").c_str(), "wb");
 	if (!appl_img)
 	{
-		printf("Failed to open %s/apploader.img for write\n", PathCombine(path, "apploader.img").c_str());
+		printf("Failed to open %s for write\n", PathCombine(path, "apploader.img").c_str());
 		free(apl);
 		return false;
 	}
@@ -309,22 +465,9 @@ bool DumpApploader(string path) {
 	return ret;
 }
 
-struct DolHeader {
-	u32 TextSectionOffsets[7];
-	u32 DataSectionOffsets[11];
-	u32 TextSectionLoadAddresses[7];
-	u32 DataSectionLoadAddresses[11];
-	u32 TextSectionSizes[7];
-	u32 DataSectionSizes[11];
-	u32 BSSAddress;
-	u32 BSSSize;
-	u32 Entrypoint;
-	u32 padding[7];
-};
-
 bool DumpMainDol(string path) {
 	DolHeader* dol_nfo = NULL;
-	WDVD_LowRead(dol_nfo, 0x100, (u64)fstdata[0] << 2);
+	WDVD_LowRead(dol_nfo, 0x100, (u64) partition_data->dol_offset << 2);
 	if (!dol_nfo->TextSectionOffsets[0]) return false;
 	u32 max = 0;
 	for (u32 i = 0; i < 7; i++) {
@@ -343,7 +486,7 @@ bool DumpMainDol(string path) {
 	if (!dol)
 		return false;
 
-	if (WDVD_LowRead(dol, max, (u64)fstdata[0] << 2))
+	if (WDVD_LowRead(dol, max, (u64) partition_data->dol_offset << 2))
 	{
 		printf("Failed to read main.dol\n");
 		free(dol);
@@ -353,7 +496,7 @@ bool DumpMainDol(string path) {
 	FILE *main_dol = fopen(PathCombine(path, "main.dol").c_str(), "wb");
 	if (!main_dol)
 	{
-		printf("Failed to open %s/main.dol for write\n", PathCombine(path, "main.dol").c_str());
+		printf("Failed to open %s for write\n", PathCombine(path, "main.dol").c_str());
 		free(dol);
 		return false;
 	}
@@ -422,22 +565,28 @@ int main(void) {
 
 	printf("Dumping files off of the disc...\n");
 	
-	if (!(ReadPartitionTable() && Launcher_ReadFST())) {
+	char GameID[4];
+	memcpy(&GameID, (u32*)0x80000000, 4);
+	string DumpDirectory = PathCombine("/FSTDump", GameID);
+	mkdir("/FSTDump", 0777);
+	mkdir(DumpDirectory.c_str(), 0777);
+	mkdir(PathCombine(DumpDirectory, "disc").c_str(), 0777);
+	mkdir(PathCombine(DumpDirectory, "files").c_str(), 0777);
+	mkdir(PathCombine(DumpDirectory, "sys").c_str(), 0777);
+	
+	DumpDiscHeader(PathCombine(DumpDirectory, "disc")); // has to be done here
+	
+	if (!(ReadPartitionTable(DumpDirectory) && Launcher_ReadFST(PathCombine(DumpDirectory, "sys")))) {
 		printf("There was an error reading the disc. Press Home to exit, and try again.\n");
 		while (true)
 			HOME_EXIT();
 	}
-	
-	char GameID[4];
-	memcpy(&GameID, (u32*)0x80000000, 4);
-	char* DumpDirectory = strcpy(GameID, "/FSTDump");
-	mkdir("/FSTDump", 0777);
-	mkdir(DumpDirectory, 0777);
-	DumpMainDol(DumpDirectory);
-	DumpEarlyMemory(DumpDirectory);
-	DumpApploader(DumpDirectory);
 
-	if (!DumpFolder("/",DumpDirectory)) {
+	DumpEarlyMemory(DumpDirectory);
+	DumpApploader(PathCombine(DumpDirectory, "sys"));
+	DumpMainDol(PathCombine(DumpDirectory, "sys"));
+
+	if (!DumpFolder("/",PathCombine(DumpDirectory, "files"))) {
 		printf("\nThe files could not be read from disc. Press Home to exit, and try again.\n");
 		while (true)
 			HOME_EXIT();
