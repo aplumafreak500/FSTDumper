@@ -184,15 +184,15 @@ bool ReadPartitionTable(string path) {
 	}
 	u32 i;
 	for (i = 0; i < partitionTableEntries[0].PartitionEntryCount; i++)
-		if (partitionTables[0]->PartitionID == 0)
+		if (partitionTables[i]->PartitionID == 0)
 			break;
-	if (i >= partitionTableEntries[0].PartitionEntryCount)
+	if (i >= partitionTableEntries[i].PartitionEntryCount)
 		return false;
 		
 	// read in ticket, tmd, cert, and h3 before calling WDVD_LowOpenPartition
 
 	PartitionHeader* part = NULL;
-	WDVD_LowUnencryptedRead(part, 0x2c0, 0);
+	WDVD_LowUnencryptedRead(part, 0x2c0, partitionTables[i]->PartitionOffset>>2);
 	
 	// ticket
 	
@@ -274,7 +274,7 @@ bool ReadPartitionTable(string path) {
 	
 	free(part);
 	
-	if (WDVD_LowOpenPartition((u64) partitionTables[0]->PartitionOffset << 2))
+	if (WDVD_LowOpenPartition((u64) partitionTables[i]->PartitionOffset << 2))
 		return false;
 	free(partitionTableEntries);
 	free(partitionTables);
