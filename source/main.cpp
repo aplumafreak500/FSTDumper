@@ -531,7 +531,7 @@ int main(void) {
 	VIDEO_WaitVSync();
 
 	printf("\x1b[2;0H");
-	printf("Luma's FST Dumper v1.0\nBased on Reggie! Dumper\n\n");
+	printf("Luma's FST Dumper v1.1\nBased on Reggie! Dumper\n\n");
 	printf("Press Home at any time to exit.\n");
 
 	printf("Looking for SD/USB... ");

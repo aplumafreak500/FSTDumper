@@ -2,8 +2,8 @@
 <app version="1">
 	<name>Luma's FST Dumper</name>
 	<coder>Aaron, megazig, aplumafreak500</coder>
-	<version>v1.0</version>
-	<release_date>20180730153000</release_date>
+	<version>v1.1</version>
+	<release_date>20180801130500</release_date>
 	<short_description>Dumps files from Wii DVD</short_description>
 	<long_description>This app will dump the files from your disc. Currently only game partitions are supported.</long_description>
 </app>
