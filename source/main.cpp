@@ -156,7 +156,7 @@ void DumpDiscHeader(string path) {
 	
 	RegionSettings* rgn = NULL;
 
-	WDVD_LowUnencryptedRead(rgn, 0x20, 0);
+	WDVD_LowUnencryptedRead(rgn, 0x20, 0x4e000);
 	
 	FILE *rgn_bin = fopen(PathCombine(path, "region.bin").c_str(), "wb");
 	if (!rgn_bin)
