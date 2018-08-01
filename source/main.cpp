@@ -576,7 +576,13 @@ int main(void) {
 	
 	DumpDiscHeader(PathCombine(DumpDirectory, "disc")); // has to be done here
 	
-	if (!(ReadPartitionTable(DumpDirectory) && Launcher_ReadFST(PathCombine(DumpDirectory, "sys")))) {
+	if (!(ReadPartitionTable(DumpDirectory))) {
+		printf("Could not open the game partition. Press Home to exit, and try again.\n");
+		while (true)
+			HOME_EXIT();
+	}
+	
+	if (!Launcher_ReadFST(PathCombine(DumpDirectory, "sys"))) {
 		printf("There was an error reading the disc. Press Home to exit, and try again.\n");
 		while (true)
 			HOME_EXIT();
