@@ -55,8 +55,6 @@ struct DiscNode {
 	}
 } __attribute__((packed));
 
-static Partition partition_data;
-
 static DiscNode* RVL_FindNode(const char* name, DiscNode* root, bool recursive) {
 	const char* nametable = (const char*)(fst + fst->Size);
 	int offset = root - fst;
@@ -130,11 +128,12 @@ string PathCombine(string path, string file) {
 	return path + "/" + file;
 }
 
+static DiscHeader hdr;
+static RegionSettings rgn;
+
 void DumpDiscHeader(string path) {
 
 	// header
-	
-	DiscHeader hdr;
 
 	WDVD_LowUnencryptedRead(&hdr, 0x100, 0);
 	
@@ -149,11 +148,10 @@ void DumpDiscHeader(string path) {
 		fclose(hdr_bin);
 	}
 	fclose(hdr_bin);
+	
 	printf("Dumped header.bin\n");
 	
 	// region.bin
-	
-	RegionSettings rgn;
 
 	WDVD_LowUnencryptedRead(&rgn, 0x20, 0x4e000);
 	
@@ -171,11 +169,16 @@ void DumpDiscHeader(string path) {
 	printf("Dumped header.bin\n");
 }
 
+static PartitionTable partitionTableEntries[4];
+static PartitionTableEntry partitionTables[4];
+static PartitionHeader part;
+static u8 disc_tmd[0x280]; // slightly larger than a regular tmd
+static u8 crt[0x400]; // TODO: much more padding than needed
+static u8 h3[0x18000];
+
 bool ReadPartitionTable(string path) {
-	PartitionTable partitionTableEntries[4];
 	if (WDVD_LowUnencryptedRead(&partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0].PartitionEntryCount == 0)
 		return false;
-	PartitionTableEntry partitionTables[4];
 	for (u32 i = 0; i < 4; i++) {
 		if (WDVD_LowUnencryptedRead(&partitionTables, (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount)))
 		return false;
@@ -189,8 +192,6 @@ bool ReadPartitionTable(string path) {
 		return false;
 		
 	// read in ticket, tmd, cert, and h3 before calling WDVD_LowOpenPartition
-	
-	PartitionHeader part;
 
 	WDVD_LowUnencryptedRead(&part, 0x2c0, partitionTables[i].PartitionOffset>>2);
 	
@@ -211,17 +212,15 @@ bool ReadPartitionTable(string path) {
 	
 	// TMD
 	
-	u32 tmd[0x280]; // slightly larger than a regular tmd
-	
 	FILE *tmd_bin = fopen(PathCombine(path, "tmd.bin").c_str(), "wb");
 	if (!tmd_bin)
 	{
 		printf("Failed to open %s for write\n", PathCombine(path, "tmd.bin").c_str());
 	}
 	
-	WDVD_LowUnencryptedRead(&tmd, part.tmdSize, (u64) part.tmdOffset << 2);
+	WDVD_LowUnencryptedRead(&disc_tmd, part.tmdSize, (u64) part.tmdOffset << 2);
 	
-	written = fwrite(&tmd, 1, part.tmdSize, tmd_bin);
+	written = fwrite(&disc_tmd, 1, part.tmdSize, tmd_bin);
 	if (written != part.tmdSize) {
 		printf("Expected %ld got %ld\n", part.tmdSize, written);
 		fclose(tmd_bin);
@@ -230,8 +229,6 @@ bool ReadPartitionTable(string path) {
 	printf("Dumped tmd.bin\n");
 	
 	// Certs
-	
-	u32 crt[0x400]; // TODO: much more padding than needed
 	
 	FILE *crt_bin = fopen(PathCombine(path, "cert.bin").c_str(), "wb");
 	if (!crt_bin)
@@ -250,8 +247,6 @@ bool ReadPartitionTable(string path) {
 	printf("Dumped cert.bin\n");
 	
 	// H3
-	
-	u32 h3[0x18000];
 	
 	FILE *h3_bin = fopen(PathCombine(path, "h3.bin").c_str(), "wb");
 	if (!h3_bin)
@@ -273,6 +268,8 @@ bool ReadPartitionTable(string path) {
 		return false;
 	return true;
 }
+
+static Partition partition_data;
 
 bool Launcher_ReadFST(string path) {
 
@@ -413,8 +410,9 @@ bool DumpEarlyMemory(string path) {
 	return true;
 }
 
+static ApploaderHeader apl_nfo;
+
 bool DumpApploader(string path) {
-	ApploaderHeader apl_nfo;
 	WDVD_LowRead(&apl_nfo, 0x20, 0x2440);
 	if (!apl_nfo.Size1) return false;
 	u32 max = 0;
@@ -457,8 +455,9 @@ bool DumpApploader(string path) {
 	return ret;
 }
 
+static DolHeader dol_nfo;
+
 bool DumpMainDol(string path) {
-	DolHeader dol_nfo;
 	WDVD_LowRead(&dol_nfo, 0x100, (u64) partition_data.dol_offset << 2);
 	if (!dol_nfo.TextSectionOffsets[0]) return false;
 	u32 max = 0;
