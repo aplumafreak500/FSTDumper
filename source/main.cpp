@@ -551,7 +551,7 @@ int main(void) {
 
 	printf("Dumping files off of the disc...\n");
 	
-	string GameID;
+	char GameID[] = {0, 0, 0, 0, 0};
 	memcpy(&GameID, (u32*)0x80000000, 4);
 	string DumpDirectory = PathCombine("/FSTDump", GameID);
 	mkdir("/FSTDump", 0777);
