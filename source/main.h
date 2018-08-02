@@ -38,8 +38,8 @@ struct DiscHeader {
 	u8 gameInternalName[0x60];
 	u8 disableHashVerification;
 	u8 disableEncryption;
-	u8 padding2[0x17c];
-}; // 0x80
+	u8 padding2[0x9f];
+}; // 0x100
 struct Signature {
 	u32 SignatureType;
 	union {
@@ -129,7 +129,7 @@ struct PartitionHeader {
 }; // 0x2c0
 struct Partition {
 	DiscHeader boot_bin;
-	u8 padding[0x3a0];
+	u8 padding[0x320];
 	u32 dol_offset;
 	u32 fst_offset;
 	u32 fst_size;
@@ -165,7 +165,7 @@ struct RegionSettings {
 }; // 0x20
 struct Wiidisc {
 	DiscHeader header_bin;
-	u8 padding[0x3c000];
+	u8 padding[0x3ff00];
 	union {
 		PartitionTableEntry _partitionTableEntries[4];
 		u8 padding[0xe000]; // partition table sub-entries here

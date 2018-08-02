@@ -22747,7 +22747,7 @@ Linker script and memory map
  *fill*         0x800629c8       0x18 
                 0x800629e0                __sbss_end = .
 
-.bss            0x800629e0    0x9d500
+.bss            0x800629e0    0x9d2c0
                 0x800629e0                __bss_start = .
                 [!provide]                PROVIDE (__bss_start, .)
  *(.dynbss)
@@ -22762,255 +22762,255 @@ Linker script and memory map
  .bss.object.5959
                 0x800669e8       0x18 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/crtbegin.o
  .bss._ZL14partition_data
-                0x80066a00     0x25c8 main.o
+                0x80066a00     0x2470 main.o
  .bss._ZL15partitionTables
-                0x80068fc8       0x20 main.o
+                0x80068e70       0x20 main.o
  .bss._ZL21partitionTableEntries
-                0x80068fe8       0x20 main.o
- .bss._ZL2h3    0x80069008    0x18000 main.o
- .bss._ZL3crt   0x80081008      0x400 main.o
- .bss._ZL3fst   0x80081408        0x4 main.o
+                0x80068e90       0x20 main.o
+ .bss._ZL2h3    0x80068eb0    0x18000 main.o
+ .bss._ZL3crt   0x80080eb0      0x400 main.o
+ .bss._ZL3fst   0x800812b0        0x4 main.o
+ *fill*         0x800812b4        0x4 
+ .bss._ZL3hdr   0x800812b8      0x130 main.o
+ .bss._ZL3rgn   0x800813e8       0x20 main.o
+ .bss._ZL3xfb   0x80081408        0x4 main.o
  *fill*         0x8008140c        0x4 
- .bss._ZL3hdr   0x80081410      0x208 main.o
- .bss._ZL3rgn   0x80081618       0x20 main.o
- .bss._ZL3xfb   0x80081638        0x4 main.o
- *fill*         0x8008163c        0x4 
- .bss._ZL4part  0x80081640      0x3c8 main.o
+ .bss._ZL4part  0x80081410      0x3c8 main.o
  .bss._ZL5rmode
-                0x80081a08        0x4 main.o
+                0x800817d8        0x4 main.o
  .bss._ZL7apl_nfo
-                0x80081a0c       0x20 main.o
+                0x800817dc       0x20 main.o
  .bss._ZL7dol_nfo
-                0x80081a2c      0x100 main.o
+                0x800817fc      0x100 main.o
  .bss._ZL8disc_tmd
-                0x80081b2c      0x280 main.o
- *fill*         0x80081dac       0x14 
+                0x800818fc      0x280 main.o
+ *fill*         0x80081b7c        0x4 
  .bss._ZZ10DumpFolderP8DiscNodeNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE6buffer
-                0x80081dc0     0x8000 main.o
+                0x80081b80     0x8000 main.o
  .bss._ZL11errorbuffer
-                0x80089dc0       0x40 wdvd.o
+                0x80089b80       0x40 wdvd.o
  .bss._ZL8inbuffer
-                0x80089e00       0x40 wdvd.o
+                0x80089bc0       0x40 wdvd.o
  .bss._ZL8tmd_data
-                0x80089e40     0x49e4 wdvd.o
+                0x80089c00     0x49e4 wdvd.o
  .bss.accessCounter
-                0x8008e824        0x4 /usr/local/devkitpro/libogc/lib/wii/libfat.a(cache.o)
+                0x8008e5e4        0x4 /usr/local/devkitpro/libogc/lib/wii/libfat.a(cache.o)
  .bss.__wpad_devs
-                0x8008e828      0x461 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
+                0x8008e5e8      0x461 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
  .bss.__wpad_keys
-                0x8008ec89       0x6e /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
- *fill*         0x8008ecf7        0x1 
+                0x8008ea49       0x6e /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
+ *fill*         0x8008eab7        0x1 
  .bss.__wpads_listen
-                0x8008ecf8       0xc8 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
- .bss.__wpdcb   0x8008edc0     0x7274 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
- .bss.wpaddata  0x80096034      0x6a4 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
+                0x8008eab8       0xc8 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
+ .bss.__wpdcb   0x8008eb80     0x7274 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
+ .bss.wpaddata  0x80095df4      0x6a4 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
  .bss.__queue_buffer
-                0x800966d8       0x14 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(io_wii.o)
- .bss.btstate   0x800966ec       0x1c /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
+                0x80096498       0x14 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(io_wii.o)
+ .bss.btstate   0x800964ac       0x1c /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
  .bss.memb_mem_bte_ctrl_reqs
-                0x80096708     0x1c00 /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
+                0x800964c8     0x1c00 /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
  .bss.memb_mem_bte_pcbs
-                0x80098308      0x310 /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
+                0x800980c8      0x310 /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
  .bss.ppc_stack
-                0x80098618     0x8000 /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
+                0x800983d8     0x8000 /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
  .bss.memb_mem_hci_inq_results
-                0x800a0618     0x1800 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
+                0x800a03d8     0x1800 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
  .bss.memb_mem_hci_link_key_results
-                0x800a1e18     0x2000 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
+                0x800a1bd8     0x2000 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
  .bss.memb_mem_hci_links
-                0x800a3e18       0xa8 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
+                0x800a3bd8       0xa8 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
  .bss.memb_mem_hci_pcbs
-                0x800a3ec0       0x60 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
+                0x800a3c80       0x60 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
  .bss.memb_mem_l2cap_listenpcbs
-                0x800a3f20      0x230 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
+                0x800a3ce0      0x230 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
  .bss.memb_mem_l2cap_pcbs
-                0x800a4150      0x498 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
+                0x800a3f10      0x498 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
  .bss.memb_mem_l2cap_segs
-                0x800a45e8      0x1c0 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
+                0x800a43a8      0x1c0 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
  .bss.memb_mem_l2cap_sigs
-                0x800a47a8       0xf0 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
+                0x800a4568       0xf0 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
  .bss.ram_block
-                0x800a4898    0x10010 /usr/local/devkitpro/libogc/lib/wii/libbte.a(btmemr.o)
+                0x800a4658    0x10010 /usr/local/devkitpro/libogc/lib/wii/libbte.a(btmemr.o)
  .bss.memb_mem_pool_pbufs
-                0x800b48a8    0x32280 /usr/local/devkitpro/libogc/lib/wii/libbte.a(btpbuf.o)
+                0x800b4668    0x32280 /usr/local/devkitpro/libogc/lib/wii/libbte.a(btpbuf.o)
  .bss.memb_mem_rom_pbufs
-                0x800e6b28      0x384 /usr/local/devkitpro/libogc/lib/wii/libbte.a(btpbuf.o)
- *fill*         0x800e6eac        0x4 
+                0x800e68e8      0x384 /usr/local/devkitpro/libogc/lib/wii/libbte.a(btpbuf.o)
+ *fill*         0x800e6c6c        0x4 
  .bss.__ppc_btstack1
-                0x800e6eb0     0x8000 /usr/local/devkitpro/libogc/lib/wii/libbte.a(physbusif.o)
+                0x800e6c70     0x8000 /usr/local/devkitpro/libogc/lib/wii/libbte.a(physbusif.o)
  .bss.__ppc_btstack2
-                0x800eeeb0     0x8000 /usr/local/devkitpro/libogc/lib/wii/libbte.a(physbusif.o)
- .bss.__usbdev  0x800f6eb0       0x1c /usr/local/devkitpro/libogc/lib/wii/libbte.a(physbusif.o)
- .bss.stdcon    0x800f6ecc       0x40 /usr/local/devkitpro/libogc/lib/wii/libogc.a(console.o)
+                0x800eec70     0x8000 /usr/local/devkitpro/libogc/lib/wii/libbte.a(physbusif.o)
+ .bss.__usbdev  0x800f6c70       0x1c /usr/local/devkitpro/libogc/lib/wii/libbte.a(physbusif.o)
+ .bss.stdcon    0x800f6c8c       0x40 /usr/local/devkitpro/libogc/lib/wii/libogc.a(console.o)
  .bss.g_IRQHandler
-                0x800f6f0c      0x100 /usr/local/devkitpro/libogc/lib/wii/libogc.a(irq.o)
- .bss.HorVer    0x800f700c       0x58 /usr/local/devkitpro/libogc/lib/wii/libogc.a(video.o)
- .bss.regs      0x800f7064       0x78 /usr/local/devkitpro/libogc/lib/wii/libogc.a(video.o)
+                0x800f6ccc      0x100 /usr/local/devkitpro/libogc/lib/wii/libogc.a(irq.o)
+ .bss.HorVer    0x800f6dcc       0x58 /usr/local/devkitpro/libogc/lib/wii/libogc.a(video.o)
+ .bss.regs      0x800f6e24       0x78 /usr/local/devkitpro/libogc/lib/wii/libogc.a(video.o)
  .bss.shdw_regs
-                0x800f70dc       0x78 /usr/local/devkitpro/libogc/lib/wii/libogc.a(video.o)
+                0x800f6e9c       0x78 /usr/local/devkitpro/libogc/lib/wii/libogc.a(video.o)
  .bss.sys_alarm_objects
-                0x800f7154       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(system.o)
+                0x800f6f14       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(system.o)
  .bss.sys_reset_func_queue
-                0x800f717c        0xc /usr/local/devkitpro/libogc/lib/wii/libogc.a(system.o)
+                0x800f6f3c        0xc /usr/local/devkitpro/libogc/lib/wii/libogc.a(system.o)
  .bss.cmdfixdevice
-                0x800f7188       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+                0x800f6f48       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
  .bss.inputBuffer
-                0x800f7198       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+                0x800f6f58       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
  .bss.inputBufferVCount
-                0x800f71b8       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+                0x800f6f78       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
  .bss.inputBufferValid
-                0x800f71c8       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+                0x800f6f88       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
  .bss.rdstHandlers
-                0x800f71d8       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
- .bss.si_alarm  0x800f71e8       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
- .bss.sipacket  0x800f71f8       0x80 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+                0x800f6f98       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+ .bss.si_alarm  0x800f6fa8       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+ .bss.sipacket  0x800f6fb8       0x80 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
  .bss.typeCallback
-                0x800f7278       0x40 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
- .bss.typeTime  0x800f72b8       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
- .bss.xferTime  0x800f72d8       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+                0x800f7038       0x40 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+ .bss.typeTime  0x800f7078       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+ .bss.xferTime  0x800f7098       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
  .bss._ipc_heaps
-                0x800f72f8      0x240 /usr/local/devkitpro/libogc/lib/wii/libogc.a(ipc.o)
+                0x800f70b8      0x240 /usr/local/devkitpro/libogc/lib/wii/libogc.a(ipc.o)
  .bss._ipc_responses
-                0x800f7538       0x50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(ipc.o)
- *fill*         0x800f7588       0x18 
+                0x800f72f8       0x50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(ipc.o)
+ *fill*         0x800f7348       0x18 
  .bss.__stm_ehbufin
-                0x800f75a0       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
+                0x800f7360       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
  .bss.__stm_ehbufout
-                0x800f75c0       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
+                0x800f7380       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
  .bss.__stm_immbufin
-                0x800f75e0       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
+                0x800f73a0       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
  .bss.__stm_immbufout
-                0x800f7600       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
+                0x800f73c0       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
  .bss.__sd0_cid
-                0x800f7620       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiisd.o)
- *fill*         0x800f7630       0x10 
+                0x800f73e0       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiisd.o)
+ *fill*         0x800f73f0       0x10 
  .bss.__conf_buffer
-                0x800f7640     0x4000 /usr/local/devkitpro/libogc/lib/wii/libogc.a(conf.o)
+                0x800f7400     0x4000 /usr/local/devkitpro/libogc/lib/wii/libogc.a(conf.o)
  .bss.__conf_txt_buffer
-                0x800fb640      0x101 /usr/local/devkitpro/libogc/lib/wii/libogc.a(conf.o)
- *fill*         0x800fb741        0x3 
- .bss.__heap    0x800fb744       0x1c /usr/local/devkitpro/libogc/lib/wii/libogc.a(usbstorage.o)
- .bss.__usbfd   0x800fb760       0x30 /usr/local/devkitpro/libogc/lib/wii/libogc.a(usbstorage.o)
- *fill*         0x800fb790       0x10 
- .bss.nandboot  0x800fb7a0     0x1020 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiilaunch.o)
+                0x800fb400      0x101 /usr/local/devkitpro/libogc/lib/wii/libogc.a(conf.o)
+ *fill*         0x800fb501        0x3 
+ .bss.__heap    0x800fb504       0x1c /usr/local/devkitpro/libogc/lib/wii/libogc.a(usbstorage.o)
+ .bss.__usbfd   0x800fb520       0x30 /usr/local/devkitpro/libogc/lib/wii/libogc.a(usbstorage.o)
+ *fill*         0x800fb550       0x10 
+ .bss.nandboot  0x800fb560     0x1020 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiilaunch.o)
  .bss.stateflags
-                0x800fc7c0       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiilaunch.o)
+                0x800fc580       0x20 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiilaunch.o)
  .bss.__pad_cmdprobedevice
-                0x800fc7e0       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(pad.o)
+                0x800fc5a0       0x10 /usr/local/devkitpro/libogc/lib/wii/libogc.a(pad.o)
  .bss.__pad_keys
-                0x800fc7f0       0x40 /usr/local/devkitpro/libogc/lib/wii/libogc.a(pad.o)
+                0x800fc5b0       0x40 /usr/local/devkitpro/libogc/lib/wii/libogc.a(pad.o)
  .bss.__pad_origin
-                0x800fc830       0x30 /usr/local/devkitpro/libogc/lib/wii/libogc.a(pad.o)
+                0x800fc5f0       0x30 /usr/local/devkitpro/libogc/lib/wii/libogc.a(pad.o)
  .bss._lckdev_queue
-                0x800fc860        0xc /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
- *fill*         0x800fc86c        0x4 
- .bss.eximap    0x800fc870       0xc0 /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
+                0x800fc620        0xc /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
+ *fill*         0x800fc62c        0x4 
+ .bss.eximap    0x800fc630       0xc0 /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
  .bss.last_exi_idtime
-                0x800fc930       0x18 /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
- .bss.lckdevs   0x800fc948      0x200 /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
- .bss._cpufifo  0x800fcb48       0x80 /usr/local/devkitpro/libogc/lib/wii/libogc.a(gx.o)
- .bss._gpfifo   0x800fcbc8       0x80 /usr/local/devkitpro/libogc/lib/wii/libogc.a(gx.o)
+                0x800fc6f0       0x18 /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
+ .bss.lckdevs   0x800fc708      0x200 /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
+ .bss._cpufifo  0x800fc908       0x80 /usr/local/devkitpro/libogc/lib/wii/libogc.a(gx.o)
+ .bss._gpfifo   0x800fc988       0x80 /usr/local/devkitpro/libogc/lib/wii/libogc.a(gx.o)
  .bss._ioCrc16Table
-                0x800fcc48      0x200 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
+                0x800fca08      0x200 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
  .bss._ioCrc7Table
-                0x800fce48      0x100 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
+                0x800fcc08      0x100 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
  .bss._ioResponse
-                0x800fcf48      0x100 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
- .bss.s_buf     0x800fd048      0x618 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_buf.o)
+                0x800fcd08      0x100 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
+ .bss.s_buf     0x800fce08      0x618 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_buf.o)
  .bss._ZL10eh_globals
-                0x800fd660        0x8 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libstdc++.a(eh_globals.o)
+                0x800fd420        0x8 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libstdc++.a(eh_globals.o)
  .bss._ZN12_GLOBAL__N_114emergency_poolE
-                0x800fd668       0x10 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libstdc++.a(eh_alloc.o)
+                0x800fd428       0x10 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libstdc++.a(eh_alloc.o)
  .bss._ZN12_GLOBAL__N_113__new_handlerE
-                0x800fd678        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libstdc++.a(new_handler.o)
+                0x800fd438        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libstdc++.a(new_handler.o)
  .bss._ZNSs4_Rep20_S_empty_rep_storageE
-                0x800fd67c       0x10 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libstdc++.a(cow-string-inst.o)
-                0x800fd67c                _ZNSs4_Rep20_S_empty_rep_storageE
+                0x800fd43c       0x10 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libstdc++.a(cow-string-inst.o)
+                0x800fd43c                _ZNSs4_Rep20_S_empty_rep_storageE
  .bss.dwarf_reg_size_table
-                0x800fd68c       0x92 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2.o)
- *fill*         0x800fd71e        0x2 
+                0x800fd44c       0x92 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2.o)
+ *fill*         0x800fd4de        0x2 
  .bss.marker.6938
-                0x800fd720        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2-fde.o)
+                0x800fd4e0        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2-fde.o)
  .bss.seen_objects
-                0x800fd724        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2-fde.o)
+                0x800fd4e4        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2-fde.o)
  .bss.terminator.7044
-                0x800fd728        0x8 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2-fde.o)
+                0x800fd4e8        0x8 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2-fde.o)
  .bss.unseen_objects
-                0x800fd730        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2-fde.o)
- .bss.temp_cwd  0x800fd734     0x1000 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libsysbase.a(chdir.o)
+                0x800fd4f0        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/libgcc.a(unwind-dw2-fde.o)
+ .bss.temp_cwd  0x800fd4f4     0x1000 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libsysbase.a(chdir.o)
  .bss.__syscalls
-                0x800fe734       0x24 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libsysbase.a(syscall_support.o)
-                0x800fe734                __syscalls
+                0x800fe4f4       0x24 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libsysbase.a(syscall_support.o)
+                0x800fe4f4                __syscalls
  .bss.__sfp_lock
-                0x800fe758        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-findfp.o)
+                0x800fe518        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-findfp.o)
  .bss.__sinit_lock
-                0x800fe75c        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-findfp.o)
+                0x800fe51c        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-findfp.o)
  .bss.__malloc_current_mallinfo
-                0x800fe760       0x28 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-mallocr.o)
-                0x800fe760                __malloc_current_mallinfo
+                0x800fe520       0x28 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x800fe520                __malloc_current_mallinfo
  .bss.__tz_lock_object
-                0x800fe788        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-tzlock.o)
+                0x800fe548        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-tzlock.o)
  .bss.__tzname_dst
-                0x800fe78c        0xb /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-tzset_r.o)
- *fill*         0x800fe797        0x1 
+                0x800fe54c        0xb /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-tzset_r.o)
+ *fill*         0x800fe557        0x1 
  .bss.__tzname_std
-                0x800fe798        0xb /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-tzset_r.o)
- *fill*         0x800fe7a3        0x1 
+                0x800fe558        0xb /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-tzset_r.o)
+ *fill*         0x800fe563        0x1 
  .bss.prev_tzenv
-                0x800fe7a4        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-tzset_r.o)
+                0x800fe564        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-tzset_r.o)
  .bss.initial_env
-                0x800fe7a8        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-environ.o)
+                0x800fe568        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-environ.o)
  .bss.__env_lock_object
-                0x800fe7ac        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-envlock.o)
+                0x800fe56c        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libc.a(lib_a-envlock.o)
  .bss.__hndl_lock
-                0x800fe7b0        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libsysbase.a(handle_manager.o)
+                0x800fe570        0x4 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/../../../../powerpc-eabi/lib/libsysbase.a(handle_manager.o)
  *(.gnu.linkonce.b.*)
  *(COMMON)
- *fill*         0x800fe7b4        0x4 
- COMMON         0x800fe7b8      0xef8 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_threads.o)
-                0x800fe7b8                _lwp_wd_timeslice
-                0x800fe7e0                core_context
-                0x800feab0                _lwp_thr_ready
- COMMON         0x800ff6b0       0x50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp.o)
-                0x800ff6b0                _lwp_tqueue_objects
-                0x800ff6d8                _lwp_thr_objects
- COMMON         0x800ff700        0xc /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_watchdog.o)
-                0x800ff700                _wd_ticks_queue
- COMMON         0x800ff70c       0x1c /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_wkspace.o)
-                0x800ff70c                __wkspace_heap
- COMMON         0x800ff728       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(mutex.o)
-                0x800ff728                _lwp_mutex_objects
- *fill*         0x800ff750       0x10 
- COMMON         0x800ff760       0x50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(system.o)
-                0x800ff760                sramcntrl
- COMMON         0x800ff7b0       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(cond.o)
-                0x800ff7b0                _lwp_cond_objects
- COMMON         0x800ff7d8       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(message.o)
-                0x800ff7d8                _lwp_mqbox_objects
- COMMON         0x800ff800      0x448 /usr/local/devkitpro/libogc/lib/wii/libogc.a(newlibc.o)
-                0x800ff800                libc_globl_reent
- *fill*         0x800ffc48       0x18 
- COMMON         0x800ffc60       0x40 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_priority.o)
-                0x800ffc60                _prio_bitmap
- COMMON         0x800ffca0       0x3c /usr/local/devkitpro/libogc/lib/wii/libogc.a(exception.o)
-                0x800ffca0                _exceptionhandlertable
- COMMON         0x800ffcdc       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(semaphore.o)
-                0x800ffcdc                _lwp_sema_objects
- COMMON         0x800ffd04      0x100 /usr/local/devkitpro/libogc/lib/wii/libogc.a(kprintf.o)
-                0x800ffd04                __outstr
- COMMON         0x800ffe04       0xc0 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
-                0x800ffe04                g_CID
-                0x800ffe24                g_CSD
-                0x800ffe44                g_CardStatus
-                0x800ffee0                . = ALIGN (0x20)
- *fill*         0x800ffec4       0x1c 
-                0x800ffee0                PROVIDE (__bss_end, .)
-                0x800ffee0                __bss_end = .
-                0x800ffee0                _end = .
+ *fill*         0x800fe574        0x4 
+ COMMON         0x800fe578      0xef8 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_threads.o)
+                0x800fe578                _lwp_wd_timeslice
+                0x800fe5a0                core_context
+                0x800fe870                _lwp_thr_ready
+ COMMON         0x800ff470       0x50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp.o)
+                0x800ff470                _lwp_tqueue_objects
+                0x800ff498                _lwp_thr_objects
+ COMMON         0x800ff4c0        0xc /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_watchdog.o)
+                0x800ff4c0                _wd_ticks_queue
+ COMMON         0x800ff4cc       0x1c /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_wkspace.o)
+                0x800ff4cc                __wkspace_heap
+ COMMON         0x800ff4e8       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(mutex.o)
+                0x800ff4e8                _lwp_mutex_objects
+ *fill*         0x800ff510       0x10 
+ COMMON         0x800ff520       0x50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(system.o)
+                0x800ff520                sramcntrl
+ COMMON         0x800ff570       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(cond.o)
+                0x800ff570                _lwp_cond_objects
+ COMMON         0x800ff598       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(message.o)
+                0x800ff598                _lwp_mqbox_objects
+ COMMON         0x800ff5c0      0x448 /usr/local/devkitpro/libogc/lib/wii/libogc.a(newlibc.o)
+                0x800ff5c0                libc_globl_reent
+ *fill*         0x800ffa08       0x18 
+ COMMON         0x800ffa20       0x40 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_priority.o)
+                0x800ffa20                _prio_bitmap
+ COMMON         0x800ffa60       0x3c /usr/local/devkitpro/libogc/lib/wii/libogc.a(exception.o)
+                0x800ffa60                _exceptionhandlertable
+ COMMON         0x800ffa9c       0x28 /usr/local/devkitpro/libogc/lib/wii/libogc.a(semaphore.o)
+                0x800ffa9c                _lwp_sema_objects
+ COMMON         0x800ffac4      0x100 /usr/local/devkitpro/libogc/lib/wii/libogc.a(kprintf.o)
+                0x800ffac4                __outstr
+ COMMON         0x800ffbc4       0xc0 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
+                0x800ffbc4                g_CID
+                0x800ffbe4                g_CSD
+                0x800ffc04                g_CardStatus
+                0x800ffca0                . = ALIGN (0x20)
+ *fill*         0x800ffc84       0x1c 
+                0x800ffca0                PROVIDE (__bss_end, .)
+                0x800ffca0                __bss_end = .
+                0x800ffca0                _end = .
                 [!provide]                PROVIDE (end, .)
 
-.iplt           0x800ffee0        0x0
- .iplt          0x800ffee0        0x0 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/crtbegin.o
+.iplt           0x800ffca0        0x0
+ .iplt          0x800ffca0        0x0 /usr/local/devkitpro/devkitPPC/lib/gcc/powerpc-eabi/6.3.0/crtbegin.o
 
 .stab
  *(.stab)
@@ -23640,86 +23640,86 @@ Linker script and memory map
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000    0xbf59b
+.debug_info     0x00000000    0xbf59a
  *(.debug_info)
- .debug_info    0x00000000    0x18502 main.o
- .debug_info    0x00018502      0xfcc wdvd.o
- .debug_info    0x000194ce     0x2243 /usr/local/devkitpro/libogc/lib/wii/libfat.a(libfat.o)
- .debug_info    0x0001b711     0x317d /usr/local/devkitpro/libogc/lib/wii/libfat.a(directory.o)
- .debug_info    0x0001e88e     0x1049 /usr/local/devkitpro/libogc/lib/wii/libfat.a(filetime.o)
- .debug_info    0x0001f8d7     0x18ff /usr/local/devkitpro/libogc/lib/wii/libfat.a(file_allocation_table.o)
- .debug_info    0x000211d6      0xf72 /usr/local/devkitpro/libogc/lib/wii/libfat.a(disc.o)
- .debug_info    0x00022148     0x3253 /usr/local/devkitpro/libogc/lib/wii/libfat.a(fatfile.o)
- .debug_info    0x0002539b     0x1ba6 /usr/local/devkitpro/libogc/lib/wii/libfat.a(cache.o)
- .debug_info    0x00026f41     0x31ce /usr/local/devkitpro/libogc/lib/wii/libfat.a(fatdir.o)
- .debug_info    0x0002a10f     0x2e46 /usr/local/devkitpro/libogc/lib/wii/libfat.a(partition.o)
- .debug_info    0x0002cf55     0x4fe8 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
- .debug_info    0x00031f3d     0x2260 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(motion_plus.o)
- .debug_info    0x0003419d     0x1531 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(dynamics.o)
- .debug_info    0x000356ce     0x223d /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(io.o)
- .debug_info    0x0003790b     0x22cd /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(io_wii.o)
- .debug_info    0x00039bd8     0x2ac4 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(ir.o)
- .debug_info    0x0003c69c     0x1df5 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(nunchuk.o)
- .debug_info    0x0003e491     0x1db2 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wiiboard.o)
- .debug_info    0x00040243     0x284f /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wiiuse.o)
- .debug_info    0x00042a92     0x20d5 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(speaker.o)
- .debug_info    0x00044b67     0x1e21 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(classic.o)
- .debug_info    0x00046988     0x2631 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(events.o)
- .debug_info    0x00048fb9     0x1dbb /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(guitar_hero_3.o)
- .debug_info    0x0004ad74     0x4f75 /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
- .debug_info    0x0004fce9     0x5131 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
- .debug_info    0x00054e1a     0x43b5 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
- .debug_info    0x000591cf      0xc3e /usr/local/devkitpro/libogc/lib/wii/libbte.a(btmemb.o)
- .debug_info    0x00059e0d      0xe24 /usr/local/devkitpro/libogc/lib/wii/libbte.a(btmemr.o)
- .debug_info    0x0005ac31     0x118e /usr/local/devkitpro/libogc/lib/wii/libbte.a(btpbuf.o)
- .debug_info    0x0005bdbf     0x1d0d /usr/local/devkitpro/libogc/lib/wii/libbte.a(physbusif.o)
- .debug_info    0x0005dacc     0x1ff5 /usr/local/devkitpro/libogc/lib/wii/libogc.a(console.o)
- .debug_info    0x0005fac1      0xe3e /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_queue.o)
- .debug_info    0x000608ff     0x31a6 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_threads.o)
- .debug_info    0x00063aa5     0x2488 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp.o)
- .debug_info    0x00065f2d     0x129e /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_stack.o)
- .debug_info    0x000671cb     0x1749 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_watchdog.o)
- .debug_info    0x00068914      0xc50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_wkspace.o)
- .debug_info    0x00069564     0x1773 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_objmgr.o)
- .debug_info    0x0006acd7     0x1230 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_heap.o)
- .debug_info    0x0006bf07      0x120 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sys_state.o)
- .debug_info    0x0006c027     0x16f8 /usr/local/devkitpro/libogc/lib/wii/libogc.a(irq.o)
- .debug_info    0x0006d71f     0x3ec4 /usr/local/devkitpro/libogc/lib/wii/libogc.a(video.o)
- .debug_info    0x000715e3     0x1a3e /usr/local/devkitpro/libogc/lib/wii/libogc.a(mutex.o)
- .debug_info    0x00073021     0x5e3a /usr/local/devkitpro/libogc/lib/wii/libogc.a(system.o)
- .debug_info    0x00078e5b     0x19d1 /usr/local/devkitpro/libogc/lib/wii/libogc.a(cond.o)
- .debug_info    0x0007a82c     0x10e4 /usr/local/devkitpro/libogc/lib/wii/libogc.a(decrementer.o)
- .debug_info    0x0007b910     0x1957 /usr/local/devkitpro/libogc/lib/wii/libogc.a(message.o)
- .debug_info    0x0007d267     0x25e6 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
- .debug_info    0x0007f84d     0x3843 /usr/local/devkitpro/libogc/lib/wii/libogc.a(ipc.o)
- .debug_info    0x00083090       0x4a /usr/local/devkitpro/libogc/lib/wii/libogc.a(console_font_8x16.o)
- .debug_info    0x000830da     0x1ca9 /usr/local/devkitpro/libogc/lib/wii/libogc.a(timesupp.o)
- .debug_info    0x00084d83      0xb19 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lock_supp.o)
- .debug_info    0x0008589c     0x12b5 /usr/local/devkitpro/libogc/lib/wii/libogc.a(newlibc.o)
- .debug_info    0x00086b51     0x306b /usr/local/devkitpro/libogc/lib/wii/libogc.a(usbgecko.o)
- .debug_info    0x00089bbc      0xba3 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sbrk.o)
- .debug_info    0x0008a75f      0xeea /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
- .debug_info    0x0008b649     0x1339 /usr/local/devkitpro/libogc/lib/wii/libogc.a(ios.o)
- .debug_info    0x0008c982     0x3815 /usr/local/devkitpro/libogc/lib/wii/libogc.a(es.o)
- .debug_info    0x00090197     0x5193 /usr/local/devkitpro/libogc/lib/wii/libogc.a(usb.o)
- .debug_info    0x0009532a     0x14eb /usr/local/devkitpro/libogc/lib/wii/libogc.a(gcsd.o)
- .debug_info    0x00096815      0x9b4 /usr/local/devkitpro/libogc/lib/wii/libogc.a(argv.o)
- .debug_info    0x000971c9     0x1dc7 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiisd.o)
- .debug_info    0x00098f90     0x1caf /usr/local/devkitpro/libogc/lib/wii/libogc.a(conf.o)
- .debug_info    0x0009ac3f     0x34bd /usr/local/devkitpro/libogc/lib/wii/libogc.a(usbstorage.o)
- .debug_info    0x0009e0fc     0x1a50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiilaunch.o)
- .debug_info    0x0009fb4c      0x17a /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_priority.o)
- .debug_info    0x0009fcc6     0x2595 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_threadq.o)
- .debug_info    0x000a225b     0x13d7 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_mutex.o)
- .debug_info    0x000a3632     0x1da6 /usr/local/devkitpro/libogc/lib/wii/libogc.a(exception.o)
- .debug_info    0x000a53d8     0x16b1 /usr/local/devkitpro/libogc/lib/wii/libogc.a(semaphore.o)
- .debug_info    0x000a6a89     0x2412 /usr/local/devkitpro/libogc/lib/wii/libogc.a(pad.o)
- .debug_info    0x000a8e9b     0x338d /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
- .debug_info    0x000ac228     0xa57c /usr/local/devkitpro/libogc/lib/wii/libogc.a(gx.o)
- .debug_info    0x000b67a4      0xcd7 /usr/local/devkitpro/libogc/lib/wii/libogc.a(kprintf.o)
- .debug_info    0x000b747b     0x40ab /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
- .debug_info    0x000bb526      0xa71 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_buf.o)
- .debug_info    0x000bbf97     0x3604 /usr/local/devkitpro/libogc/lib/wii/libogc.a(network_wii.o)
+ .debug_info    0x00000000    0x18501 main.o
+ .debug_info    0x00018501      0xfcc wdvd.o
+ .debug_info    0x000194cd     0x2243 /usr/local/devkitpro/libogc/lib/wii/libfat.a(libfat.o)
+ .debug_info    0x0001b710     0x317d /usr/local/devkitpro/libogc/lib/wii/libfat.a(directory.o)
+ .debug_info    0x0001e88d     0x1049 /usr/local/devkitpro/libogc/lib/wii/libfat.a(filetime.o)
+ .debug_info    0x0001f8d6     0x18ff /usr/local/devkitpro/libogc/lib/wii/libfat.a(file_allocation_table.o)
+ .debug_info    0x000211d5      0xf72 /usr/local/devkitpro/libogc/lib/wii/libfat.a(disc.o)
+ .debug_info    0x00022147     0x3253 /usr/local/devkitpro/libogc/lib/wii/libfat.a(fatfile.o)
+ .debug_info    0x0002539a     0x1ba6 /usr/local/devkitpro/libogc/lib/wii/libfat.a(cache.o)
+ .debug_info    0x00026f40     0x31ce /usr/local/devkitpro/libogc/lib/wii/libfat.a(fatdir.o)
+ .debug_info    0x0002a10e     0x2e46 /usr/local/devkitpro/libogc/lib/wii/libfat.a(partition.o)
+ .debug_info    0x0002cf54     0x4fe8 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wpad.o)
+ .debug_info    0x00031f3c     0x2260 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(motion_plus.o)
+ .debug_info    0x0003419c     0x1531 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(dynamics.o)
+ .debug_info    0x000356cd     0x223d /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(io.o)
+ .debug_info    0x0003790a     0x22cd /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(io_wii.o)
+ .debug_info    0x00039bd7     0x2ac4 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(ir.o)
+ .debug_info    0x0003c69b     0x1df5 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(nunchuk.o)
+ .debug_info    0x0003e490     0x1db2 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wiiboard.o)
+ .debug_info    0x00040242     0x284f /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(wiiuse.o)
+ .debug_info    0x00042a91     0x20d5 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(speaker.o)
+ .debug_info    0x00044b66     0x1e21 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(classic.o)
+ .debug_info    0x00046987     0x2631 /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(events.o)
+ .debug_info    0x00048fb8     0x1dbb /usr/local/devkitpro/libogc/lib/wii/libwiiuse.a(guitar_hero_3.o)
+ .debug_info    0x0004ad73     0x4f75 /usr/local/devkitpro/libogc/lib/wii/libbte.a(bte.o)
+ .debug_info    0x0004fce8     0x5131 /usr/local/devkitpro/libogc/lib/wii/libbte.a(hci.o)
+ .debug_info    0x00054e19     0x43b5 /usr/local/devkitpro/libogc/lib/wii/libbte.a(l2cap.o)
+ .debug_info    0x000591ce      0xc3e /usr/local/devkitpro/libogc/lib/wii/libbte.a(btmemb.o)
+ .debug_info    0x00059e0c      0xe24 /usr/local/devkitpro/libogc/lib/wii/libbte.a(btmemr.o)
+ .debug_info    0x0005ac30     0x118e /usr/local/devkitpro/libogc/lib/wii/libbte.a(btpbuf.o)
+ .debug_info    0x0005bdbe     0x1d0d /usr/local/devkitpro/libogc/lib/wii/libbte.a(physbusif.o)
+ .debug_info    0x0005dacb     0x1ff5 /usr/local/devkitpro/libogc/lib/wii/libogc.a(console.o)
+ .debug_info    0x0005fac0      0xe3e /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_queue.o)
+ .debug_info    0x000608fe     0x31a6 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_threads.o)
+ .debug_info    0x00063aa4     0x2488 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp.o)
+ .debug_info    0x00065f2c     0x129e /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_stack.o)
+ .debug_info    0x000671ca     0x1749 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_watchdog.o)
+ .debug_info    0x00068913      0xc50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_wkspace.o)
+ .debug_info    0x00069563     0x1773 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_objmgr.o)
+ .debug_info    0x0006acd6     0x1230 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_heap.o)
+ .debug_info    0x0006bf06      0x120 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sys_state.o)
+ .debug_info    0x0006c026     0x16f8 /usr/local/devkitpro/libogc/lib/wii/libogc.a(irq.o)
+ .debug_info    0x0006d71e     0x3ec4 /usr/local/devkitpro/libogc/lib/wii/libogc.a(video.o)
+ .debug_info    0x000715e2     0x1a3e /usr/local/devkitpro/libogc/lib/wii/libogc.a(mutex.o)
+ .debug_info    0x00073020     0x5e3a /usr/local/devkitpro/libogc/lib/wii/libogc.a(system.o)
+ .debug_info    0x00078e5a     0x19d1 /usr/local/devkitpro/libogc/lib/wii/libogc.a(cond.o)
+ .debug_info    0x0007a82b     0x10e4 /usr/local/devkitpro/libogc/lib/wii/libogc.a(decrementer.o)
+ .debug_info    0x0007b90f     0x1957 /usr/local/devkitpro/libogc/lib/wii/libogc.a(message.o)
+ .debug_info    0x0007d266     0x25e6 /usr/local/devkitpro/libogc/lib/wii/libogc.a(si.o)
+ .debug_info    0x0007f84c     0x3843 /usr/local/devkitpro/libogc/lib/wii/libogc.a(ipc.o)
+ .debug_info    0x0008308f       0x4a /usr/local/devkitpro/libogc/lib/wii/libogc.a(console_font_8x16.o)
+ .debug_info    0x000830d9     0x1ca9 /usr/local/devkitpro/libogc/lib/wii/libogc.a(timesupp.o)
+ .debug_info    0x00084d82      0xb19 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lock_supp.o)
+ .debug_info    0x0008589b     0x12b5 /usr/local/devkitpro/libogc/lib/wii/libogc.a(newlibc.o)
+ .debug_info    0x00086b50     0x306b /usr/local/devkitpro/libogc/lib/wii/libogc.a(usbgecko.o)
+ .debug_info    0x00089bbb      0xba3 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sbrk.o)
+ .debug_info    0x0008a75e      0xeea /usr/local/devkitpro/libogc/lib/wii/libogc.a(stm.o)
+ .debug_info    0x0008b648     0x1339 /usr/local/devkitpro/libogc/lib/wii/libogc.a(ios.o)
+ .debug_info    0x0008c981     0x3815 /usr/local/devkitpro/libogc/lib/wii/libogc.a(es.o)
+ .debug_info    0x00090196     0x5193 /usr/local/devkitpro/libogc/lib/wii/libogc.a(usb.o)
+ .debug_info    0x00095329     0x14eb /usr/local/devkitpro/libogc/lib/wii/libogc.a(gcsd.o)
+ .debug_info    0x00096814      0x9b4 /usr/local/devkitpro/libogc/lib/wii/libogc.a(argv.o)
+ .debug_info    0x000971c8     0x1dc7 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiisd.o)
+ .debug_info    0x00098f8f     0x1caf /usr/local/devkitpro/libogc/lib/wii/libogc.a(conf.o)
+ .debug_info    0x0009ac3e     0x34bd /usr/local/devkitpro/libogc/lib/wii/libogc.a(usbstorage.o)
+ .debug_info    0x0009e0fb     0x1a50 /usr/local/devkitpro/libogc/lib/wii/libogc.a(wiilaunch.o)
+ .debug_info    0x0009fb4b      0x17a /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_priority.o)
+ .debug_info    0x0009fcc5     0x2595 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_threadq.o)
+ .debug_info    0x000a225a     0x13d7 /usr/local/devkitpro/libogc/lib/wii/libogc.a(lwp_mutex.o)
+ .debug_info    0x000a3631     0x1da6 /usr/local/devkitpro/libogc/lib/wii/libogc.a(exception.o)
+ .debug_info    0x000a53d7     0x16b1 /usr/local/devkitpro/libogc/lib/wii/libogc.a(semaphore.o)
+ .debug_info    0x000a6a88     0x2412 /usr/local/devkitpro/libogc/lib/wii/libogc.a(pad.o)
+ .debug_info    0x000a8e9a     0x338d /usr/local/devkitpro/libogc/lib/wii/libogc.a(exi.o)
+ .debug_info    0x000ac227     0xa57c /usr/local/devkitpro/libogc/lib/wii/libogc.a(gx.o)
+ .debug_info    0x000b67a3      0xcd7 /usr/local/devkitpro/libogc/lib/wii/libogc.a(kprintf.o)
+ .debug_info    0x000b747a     0x40ab /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_io.o)
+ .debug_info    0x000bb525      0xa71 /usr/local/devkitpro/libogc/lib/wii/libogc.a(sdgecko_buf.o)
+ .debug_info    0x000bbf96     0x3604 /usr/local/devkitpro/libogc/lib/wii/libogc.a(network_wii.o)
 
 .debug_abbrev   0x00000000    0x130bc
  *(.debug_abbrev)
@@ -24212,11 +24212,11 @@ Linker script and memory map
 .debug_varnames
  *(.debug_varnames)
                 0x00000000                __isIPL = 0x0
-                0x8011fee0                __stack_addr = ((((__bss_start + SIZEOF (.bss)) + 0x20000) + 0x7) & 0xfffffff8)
-                0x800ffee0                __stack_end = (__bss_start + SIZEOF (.bss))
-                0x80123ee0                __intrstack_addr = (__stack_addr + 0x4000)
-                0x8011fee0                __intrstack_end = __stack_addr
-                0x80123ee0                __Arena1Lo = ((__intrstack_addr + 0x1f) & 0xffffffe0)
+                0x8011fca0                __stack_addr = ((((__bss_start + SIZEOF (.bss)) + 0x20000) + 0x7) & 0xfffffff8)
+                0x800ffca0                __stack_end = (__bss_start + SIZEOF (.bss))
+                0x80123ca0                __intrstack_addr = (__stack_addr + 0x4000)
+                0x8011fca0                __intrstack_end = __stack_addr
+                0x80123ca0                __Arena1Lo = ((__intrstack_addr + 0x1f) & 0xffffffe0)
                 0x817feff0                __Arena1Hi = 0x817feff0
                 0x90002000                __Arena2Lo = 0x90002000
                 0x933e0000                __Arena2Hi = 0x933e0000
