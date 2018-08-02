@@ -173,11 +173,11 @@ void DumpDiscHeader(string path) {
 
 bool ReadPartitionTable(string path) {
 	PartitionTable partitionTableEntries[4];
-	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0].PartitionEntryCount == 0)
+	if (WDVD_LowUnencryptedRead(&partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0].PartitionEntryCount == 0)
 		return false;
 	PartitionTableEntry partitionTables[4];
 	for (u32 i = 0; i < 4; i++) {
-		if (WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount)))
+		if (WDVD_LowUnencryptedRead(&partitionTables, (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount)))
 		return false;
 	}
 	u32 i;
