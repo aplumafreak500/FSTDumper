@@ -136,16 +136,16 @@ void DumpDiscHeader(string path) {
 	
 	DiscHeader hdr;
 
-	WDVD_LowUnencryptedRead(&hdr, 0x80, 0);
+	WDVD_LowUnencryptedRead(&hdr, 0x100, 0);
 	
 	FILE *hdr_bin = fopen(PathCombine(path, "header.bin").c_str(), "wb");
 	if (!hdr_bin)
 	{
 		printf("Failed to open %s for write\n", PathCombine(path, "header.bin").c_str());
 	}
-	u32 written = fwrite(&hdr, 1, 0x80, hdr_bin);
-	if (written != 0x80) {
-		printf("Expected %d got %ld\n", 0x80, written);
+	u32 written = fwrite(&hdr, 1, 0x100, hdr_bin);
+	if (written != 0x100) {
+		printf("Expected %d got %ld\n", 0x100, written);
 		fclose(hdr_bin);
 	}
 	fclose(hdr_bin);
