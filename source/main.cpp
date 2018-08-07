@@ -142,24 +142,29 @@ void DumpRegionBin(string path) {
 	printf("Dumped region.bin\n");
 }
 bool ReadPartitionTable(string path) {
-	PartitionTable* partitionTableEntries[4] = {0, 0, 0, 0};
-	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0]->PartitionEntryCount == 0)
+	// PartitionTable* partitionTableEntries = (PartitionTable*) memalign(32, sizeof(PartitionTable)*4);
+	u32 partitionTableEntries[24];
+	memset(partitionTableEntries, 0, sizeof(partitionTableEntries));
+	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0]/*.PartitionEntryCount*/ == 0)
 		return false;
-	PartitionTableEntry* partitionTables[4] = {0, 0, 0, 0};
+	//PartitionTableEntry* partitionTables = (PartitionTableEntry*) memalign(32, sizeof(PartitionTableEntry)*4);
 	for (u32 i = 0; i < 4; i++) {
-		if (WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[i]->PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i]->PartitionEntryCount)))
+		//if (WDVD_LowUnencryptedRead(partitionTables,  (u64) partitionTableEntries[i].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[i].PartitionEntryCount)))
+		if (WDVD_LowUnencryptedRead(partitionTableEntries + 8, max(4, min(8, partitionTableEntries[0])) * 8, (u64)partitionTableEntries[1] << 2))
 		return false;
 	}
 	u32 i;
-	for (i = 0; i < partitionTableEntries[0]->PartitionEntryCount; i++) {
-		if (partitionTables[i]->PartitionID == 0)
+	for (i = 0; i < partitionTableEntries[0]/*.PartitionEntryCount*/; i++) {
+		//if (partitionTables[i].PartitionID == 0)
+		if (partitionTableEntries[i * 2 + 8 + 1] == 0)
 			break;
 	}
-	if (i >= partitionTableEntries[0]->PartitionEntryCount)
+	if (i >= partitionTableEntries[0]/*.PartitionEntryCount*/)
 		return false;
 	// read in ticket, tmd, cert, and h3 before calling WDVD_LowOpenPartition
 	PartitionHeader* part = (PartitionHeader*) memalign(32, sizeof(PartitionHeader));
-	WDVD_LowUnencryptedRead(part, 0x2c0, partitionTables[i]->PartitionOffset>>2);
+	//WDVD_LowUnencryptedRead(part, 0x2c0, partitionTables[i].PartitionOffset>>2);
+	WDVD_LowUnencryptedRead(part, 0x2c0, partitionTableEntries[i * 2 + 8]>>2);
 	// ticket
 	FILE *tik_bin = fopen(PathCombine(path, "ticket.bin").c_str(), "wb");
 	if (!tik_bin) {
@@ -214,7 +219,8 @@ bool ReadPartitionTable(string path) {
 	fclose(h3_bin);
 	free(h3);
 	printf("Dumped h3.bin\n");
-	if (WDVD_LowOpenPartition((u64) partitionTables[i]->PartitionOffset << 2))
+	//if (WDVD_LowOpenPartition((u64) partitionTables[i].PartitionOffset << 2))
+	if (WDVD_LowOpenPartition((u64) partitionTableEntries[i * 2 + 8] << 2))
 		return false;
 	return true;
 }
