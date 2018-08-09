@@ -37,6 +37,9 @@ using std::string;
 #define min(a,b) ((a)>(b) ? (b) : (a))
 #define max(a,b) ((a)>(b) ? (a) : (b))
 
+extern "C" {
+	extern void __exception_setreload(int t);
+}
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
 struct DiscNode;
@@ -152,14 +155,14 @@ bool ReadPartitionTable(string path) {
 	printf("[Debug] partitionTables offset 0x%p\n", (void*) partitionTables);
 	u32 t = 0;
 	u32 p = 0;
-	for (t = 0; t > 4; t++) {
+	for (t = 0; t < 4; t++) {
 		printf("[Debug] Looking for a suitable partiton in sub-table %ld (mem 0x%p, disc 0x%08llx)\n", t, (void*) partitionTableEntries[t].PartitionEntryOffset, (u64) partitionTableEntries[t].PartitionEntryOffset << 2);
 		if (WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[t].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[t].PartitionEntryCount))) {
 			printf(": Failed!\n");
 			return false;
 		}
 		printf("\n");
-		for (p = 0; p > partitionTableEntries[0].PartitionEntryCount; p++) {
+		for (p = 0; p < partitionTableEntries[0].PartitionEntryCount; p++) {
 			printf("[Debug] Partition %ld (id 0x%lx, mem 0x%p, disc 0x%08llx)\n", p, partitionTables[p].PartitionID, (void*) partitionTables[p].PartitionID, (u64) partitionTables[p].PartitionOffset << 2);
 			if (partitionTables[p].PartitionID == 0) {
 				printf("[Debug] Game partition found! [table %ld, partition %ld]\n", t, p);
@@ -449,6 +452,7 @@ int main(void) {
 	VIDEO_Flush();
 	VIDEO_WaitVSync();
 	VIDEO_WaitVSync();
+	__exception_setreload(60); // Because I'm on a Wii U, this makes it less of a hassle to reset back to the HBC. 60 seconds here to allow me to gather the stack trace and other bits of data needed to debug the code.
 	printf("\x1b[2;0H");
 	printf("Luma's FST Dumper v1.1\nBased on Reggie! Dumper\n\n");
 	printf("Press Home at any time to exit.\n");
