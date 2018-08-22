@@ -49,9 +49,6 @@ struct DiscNode {
 	u32 NameOffset:24;
 	u32 DataOffset;
 	u32 Size;
-	const char* GetName() {
-		return (const char*)(fst + fst->Size) + NameOffset;
-	}
 } __attribute__((packed));
 
 static DiscNode* RVL_FindNode(const char* name, DiscNode* root, bool recursive) {
@@ -111,7 +108,6 @@ string PathCombine(string path, string file) {
 	return path + "/" + file;
 }
 void DumpDiscHeader(string path) {
-	// header
 	DiscHeader* hdr = (DiscHeader*) memalign(32, sizeof(DiscHeader));
 	WDVD_LowUnencryptedRead(hdr, 0x100, 0);
 	FILE *hdr_bin = fopen(PathCombine(path, "header.bin").c_str(), "wb");
@@ -128,7 +124,6 @@ void DumpDiscHeader(string path) {
 	printf("Dumped header.bin\n");
 }
 void DumpRegionBin(string path) {
-	// region.bin
 	RegionSettings* rgn = (RegionSettings*) memalign(32, sizeof(RegionSettings));
 	WDVD_LowUnencryptedRead(rgn, 0x20, 0x4e000);
 	FILE *rgn_bin = fopen(PathCombine(path, "region.bin").c_str(), "wb");
@@ -145,26 +140,25 @@ void DumpRegionBin(string path) {
 	printf("Dumped region.bin\n");
 }
 bool ReadPartitionTable(string path) {
+	// TODO: Move to main()
 	PartitionTable* partitionTableEntries = (PartitionTable*) memalign(32, sizeof(PartitionTable)*4);
-	printf("[Debug] partitionTableEntries offset 0x%p\n", (void*) partitionTableEntries);
-	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000) || partitionTableEntries[0].PartitionEntryCount == 0) {
-		printf("WDVD_LowUnencryptedRead: failed to read partition table\n");
+	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000)) {
 		return false;
 	}
-	PartitionTableEntry* partitionTables = (PartitionTableEntry*) memalign(32, sizeof(PartitionTableEntry)*4);
-	printf("[Debug] partitionTables offset 0x%p\n", (void*) partitionTables);
 	u32 t = 0;
 	u32 p = 0;
+	PartitionTableEntry* partitionTable;
 	for (t = 0; t < 4; t++) {
-		printf("[Debug] Looking for a suitable partiton in sub-table %ld (mem 0x%p, disc 0x%08llx)\n", t, (void*) partitionTableEntries[t].PartitionEntryOffset, (u64) partitionTableEntries[t].PartitionEntryOffset << 2);
-		if (WDVD_LowUnencryptedRead(partitionTables, (u64) partitionTableEntries[t].PartitionEntryOffset << 2, (sizeof(PartitionTableEntry)*partitionTableEntries[t].PartitionEntryCount))) {
-			printf(": Failed!\n");
+		printf("[Debug] Looking for a suitable partiton in sub-table %ld (offset 0x%08llx)\n", t, (u64) partitionTableEntries[t].PartitionEntryOffset << 2);
+		printf("[Debug] Number of partitions in table %ld: %ld\n", t, partitionTableEntries[t].PartitionEntryCount);
+		partitionTable = (PartitionTableEntry*) memalign(32, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount);
+		if (WDVD_LowUnencryptedRead(partitionTable, (u64) partitionTableEntries[t].PartitionEntryOffset << 2, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount)) {
 			return false;
 		}
-		printf("\n");
-		for (p = 0; p < partitionTableEntries[0].PartitionEntryCount; p++) {
-			printf("[Debug] Partition %ld (id 0x%lx, mem 0x%p, disc 0x%08llx)\n", p, partitionTables[p].PartitionID, (void*) partitionTables[p].PartitionID, (u64) partitionTables[p].PartitionOffset << 2);
-			if (partitionTables[p].PartitionID == 0) {
+		for (p = 0; p < partitionTableEntries[t].PartitionEntryCount; p++) {
+			printf("[Debug] Partition %ld (id 0x%lx, offset 0x%08llx)\n", p, partitionTable[p].PartitionID, (u64) partitionTable[p].PartitionOffset << 2);
+			//TODO: Start dumping here
+			if (partitionTable[p].PartitionID == 0 && partitionTable[p].PartitionOffset != 0) {
 				printf("[Debug] Game partition found! [table %ld, partition %ld]\n", t, p);
 				break;
 			}
@@ -176,13 +170,12 @@ bool ReadPartitionTable(string path) {
 	}
 	if (t >= 4) {
 		printf("No valid game partitions found!\n");
-		printf("\n--------------------------\n");
 		return false;
 	}
-	printf("\n--------------------------\n");
 	// read in ticket, tmd, cert, and h3 before calling WDVD_LowOpenPartition
+	// TODO: split and pass `part`
 	PartitionHeader* part = (PartitionHeader*) memalign(32, sizeof(PartitionHeader));
-	WDVD_LowUnencryptedRead(part, 0x2c0, partitionTables[p].PartitionOffset>>2);
+	WDVD_LowUnencryptedRead(part, 0x2c0, partitionTable[p].PartitionOffset << 2);
 	// ticket
 	FILE *tik_bin = fopen(PathCombine(path, "ticket.bin").c_str(), "wb");
 	if (!tik_bin) {
@@ -237,12 +230,14 @@ bool ReadPartitionTable(string path) {
 	fclose(h3_bin);
 	free(h3);
 	printf("Dumped h3.bin\n");
-	if (WDVD_LowOpenPartition((u64) partitionTables[p].PartitionOffset << 2))
+	free(part);
+	if (WDVD_LowOpenPartition((u64) partitionTable[p].PartitionOffset << 2))
 		return false;
 	return true;
 }
 static Partition* partition_data;
 bool Launcher_ReadFST(string path) {
+	//TODO: split
 	// partition header
 	partition_data = (Partition*) memalign(32, sizeof(Partition));
 	if (WDVD_LowRead(partition_data, 0x2440, 0))
@@ -287,11 +282,13 @@ bool Launcher_ReadFST(string path) {
 	printf("Dumped fst.bin\n");
 	return true;
 }
-bool Launcher_DiscInserted() {
-	bool cover;
-	if (!WDVD_VerifyCover(&cover))
-		return cover;
-	return false;
+extern "C" {
+	bool Launcher_DiscInserted() {
+		bool cover;
+		if (!WDVD_VerifyCover(&cover))
+			return cover;
+		return false;
+	}
 }
 #define HOME_EXIT() { \
 	WPAD_ScanPads(); \
@@ -311,7 +308,7 @@ bool DumpFolder(DiscNode* node, string path) {
 	mkdir(path.c_str(), 0777);
 	printf("\nDumping to %s...", path.c_str());
 	for (DiscNode* file = node + 1; file < fst + node->Size; ) {
-		string name = PathCombine(path, file->GetName());
+		string name = PathCombine(path, (char*) (fst + fst->Size + node->NameOffset));
 		if (file->Type) {
 			bool ret = DumpFolder(file, name);
 			if (!ret)
@@ -506,6 +503,7 @@ int main(void) {
 	}
 	fatUnmount("sd:");
 	fatUnmount("usb:");
+	WDVD_Close();
 	printf("\nWe're all done.\n");
 	printf("Press Home to exit.\n\n\n");
 	while (true)
