@@ -15,12 +15,18 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ *  Modified by aplumafreak500 for Luma's FST Dumper and Luma's CTGP Launcher
+ *
  */
 
 #pragma once
 
 #include <ogc/es.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 int WDVD_Init();
 bool WDVD_Reset();
 int WDVD_LowRead(void *buf, u32 len, u64 offset);
@@ -30,3 +36,9 @@ int WDVD_LowOpenPartition(u64 offset);
 int WDVD_VerifyCover(bool* cover);
 tmd* WDVD_GetTMD();
 void WDVD_Close();
+int WDVD_LowReadBCA(void *buf);
+int WDVD_StopMotor();
+int WDVD_Eject();
+#ifdef __cplusplus
+}
+#endif

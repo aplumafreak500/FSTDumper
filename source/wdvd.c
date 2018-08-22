@@ -15,6 +15,9 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ *  Modified by aplumafreak500 for Luma's FST Dumper and Luma's CTGP Launcher
+ *
  */
 
 #include <ogc/ipc.h>
@@ -24,10 +27,7 @@
 static int di_fd = -1;
 
 // Apparently GCC is too cool for casting.
-static union {
-	u32 inbuffer[0x10]; //u32 inbuffer[0x10] ATTRIBUTE_ALIGN(32);
-	ioctlv iovector[0x08];
-} ATTRIBUTE_ALIGN(32);
+static u32 inbuffer[0x10] ATTRIBUTE_ALIGN(32);
 
 int WDVD_Init() {
     if (di_fd >= 0)
@@ -61,7 +61,6 @@ int WDVD_LowUnencryptedRead(void *buf, u32 len, u64 offset) {
 
 	return (result==1) ? 0 : -result;
 }
-
 
 int WDVD_LowRead(void *buf, u32 len, u64 offset) {
 	int result;
@@ -103,22 +102,66 @@ int WDVD_LowReadDiskId() {
 	return (result==1) ? 0 : -result;
 }
 
-// ugh. Don't even need this tmd shit.
-static u8 tmd_data[0x49e4] ATTRIBUTE_ALIGN(32);
-static u8 errorbuffer[0x40] ATTRIBUTE_ALIGN(32);
+int WDVD_LowReadBCA(void *buf) {
+	int result;
+
+	if (di_fd<0)
+		return -1;
+
+	inbuffer[0] = 0xda000000;
+
+	result = IOS_Ioctl(di_fd, 0xda, inbuffer, 0x20, buf, 64);
+
+	return (result==1) ? 0 : -result;
+}
+
+int WDVD_Eject() {
+	int result;
+
+	if (di_fd<0)
+		return -1;
+
+	inbuffer[0] = 0xe3000000;
+	inbuffer[1] = 1;
+	inbuffer[2] = 0;
+
+	result = IOS_Ioctl(di_fd, 0xe3, inbuffer, 0x20, 0, 0x20);
+
+	return (result==1) ? 0 : -result;
+}
+
+int WDVD_StopMotor() {
+	int result;
+
+	if (di_fd<0)
+		return -1;
+
+	inbuffer[0] = 0xe3000000;
+	inbuffer[1] = 0;
+	inbuffer[2] = 0;
+
+	result = IOS_Ioctl(di_fd, 0xe3, inbuffer, 0x20, 0, 0x20);
+
+	return (result==1) ? 0 : -result;
+}
+
 int WDVD_LowOpenPartition(u64 offset) {
 	int result;
+	ioctlv iovector[0x08] ATTRIBUTE_ALIGN(32);
+	u8 errorbuffer[0x40] ATTRIBUTE_ALIGN(32);
+	u8 tmd_data[0x49e4] ATTRIBUTE_ALIGN(32);
 
 	if (di_fd<0)
 		return -1;
 
 	WDVD_LowClosePartition();
 
-	inbuffer[12] = 0x8b000000;
-	inbuffer[13] = offset >> 2;
-	inbuffer[14] = inbuffer[15] = 0;
+	inbuffer[0] = 0x8b000000;
+	inbuffer[1] = offset >> 2;
+	inbuffer[2] = 0;
+	inbuffer[3] = 0;
 
-	iovector[0].data = inbuffer+12;
+	iovector[0].data = inbuffer;
 	iovector[0].len = 0x20;
 	iovector[1].data = 0;
 	iovector[1].len = 0x24a;
@@ -128,16 +171,13 @@ int WDVD_LowOpenPartition(u64 offset) {
 	iovector[3].len = 0x49e4;
 	iovector[4].data = errorbuffer;
 	iovector[4].len = 0x20;
+	iovector[5].data = 0;
+	iovector[5].len = 0;
 
 	result = IOS_Ioctlv(di_fd, 0x8B, 3, 2, iovector);
 
 	return (result==1) ? 0 : -result;
 }
-tmd* WDVD_GetTMD()
-{
-	return (tmd*)tmd_data;
-}
-
 void WDVD_Close() {
 	if (di_fd < 0)
 		return;
@@ -145,7 +185,6 @@ void WDVD_Close() {
 	IOS_Close(di_fd);
 	di_fd = -1;
 }
-
 int WDVD_VerifyCover(bool* cover) {
 	*cover = false;
 	if (di_fd<0)
