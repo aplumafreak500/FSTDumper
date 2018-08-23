@@ -38,7 +38,7 @@ using std::string;
 #define max(a,b) ((a)>(b) ? (a) : (b))
 
 extern "C" {
-	extern void __exception_setreload(int t);
+extern void __exception_setreload(int t);
 }
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
@@ -139,7 +139,10 @@ void DumpRegionBin(string path) {
 	free(rgn);
 	printf("Dumped region.bin\n");
 }
-bool ReadPartitionTable(string path) {
+static u64 PartitionOffset;
+static PartitionHeader* part;
+extern "C" {
+bool ReadPartitionTable() {
 	// TODO: Move to main()
 	PartitionTable* partitionTableEntries = (PartitionTable*) memalign(32, sizeof(PartitionTable)*4);
 	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000)) {
@@ -172,11 +175,14 @@ bool ReadPartitionTable(string path) {
 		printf("No valid game partitions found!\n");
 		return false;
 	}
-	// read in ticket, tmd, cert, and h3 before calling WDVD_LowOpenPartition
-	// TODO: split and pass `part`
-	PartitionHeader* part = (PartitionHeader*) memalign(32, sizeof(PartitionHeader));
-	WDVD_LowUnencryptedRead(part, 0x2c0, partitionTable[p].PartitionOffset << 2);
-	// ticket
+	PartitionOffset = partitionTable[p].PartitionOffset << 2;
+	part = (PartitionHeader*) memalign(32, sizeof(PartitionHeader));
+	if (WDVD_LowUnencryptedRead(part, 0x2c0, PartitionOffset << 2))
+		return false;
+	return true;
+}
+}
+void DumpTicket(string path) {
 	FILE *tik_bin = fopen(PathCombine(path, "ticket.bin").c_str(), "wb");
 	if (!tik_bin) {
 		printf("Failed to open %s for write\n", PathCombine(path, "ticket.bin").c_str());
@@ -187,61 +193,69 @@ bool ReadPartitionTable(string path) {
 	}
 	fclose(tik_bin);
 	printf("Dumped ticket.bin\n");
-	// TMD
-	u8* disc_tmd = (u8*) memalign(32, 0x280); // slightly larger than a regular tmd
+}
+void DumpTmd(string path) {
+	u8* disc_tmd = (u8*) memalign(32, part->certSize);
 	FILE *tmd_bin = fopen(PathCombine(path, "tmd.bin").c_str(), "wb");
 	if (!tmd_bin) {
 		printf("Failed to open %s for write\n", PathCombine(path, "tmd.bin").c_str());
 	}
 	WDVD_LowUnencryptedRead(disc_tmd, part->tmdSize, (u64) part->tmdOffset << 2);
-	written = fwrite(disc_tmd, 1, part->tmdSize, tmd_bin);
+	u32 written = fwrite(disc_tmd, 1, part->tmdSize, tmd_bin);
 	if (written != part->tmdSize) {
 		printf("Expected %ld got %ld\n", part->tmdSize, written);
 	}
 	fclose(tmd_bin);
 	free(disc_tmd);
 	printf("Dumped tmd.bin\n");
-	// Certs
-	u8* crt = (u8*) memalign(32, 0x400); // TODO: much more padding than needed
+}
+void DumpCerts(string path) {
+	u8* crt = (u8*) memalign(32, part->certSize);
 	FILE *crt_bin = fopen(PathCombine(path, "cert.bin").c_str(), "wb");
 	if (!crt_bin)
 	{
 		printf("Failed to open %s for write\n", PathCombine(path, "cert.bin").c_str());
 	}
 	WDVD_LowUnencryptedRead(crt, part->certSize, (u64) part->certOffset << 2);
-	written = fwrite(crt, 1, part->certSize, crt_bin);
+	u32 written = fwrite(crt, 1, part->certSize, crt_bin);
 	if (written != part->certSize) {
 		printf("Expected %ld got %ld\n", part->certSize, written);
 	}
 	fclose(crt_bin);
 	free(crt);
 	printf("Dumped cert.bin\n");
-	// H3
+}
+void DumpH3(string path) {
 	u8* h3 = (u8*) memalign(32, 0x18000);
 	FILE *h3_bin = fopen(PathCombine(path, "h3.bin").c_str(), "wb");
 	if (!h3_bin) {
 		printf("Failed to open %s for write\n", PathCombine(path, "h3.bin").c_str());
 	}
 	WDVD_LowUnencryptedRead(h3, 0x18000, (u64) part->h3Offset << 2);
-	written = fwrite(h3, 1, 0x18000, h3_bin);
+	u32 written = fwrite(h3, 1, 0x18000, h3_bin);
 	if (written != 0x18000) {
 		printf("Expected %d got %ld\n", 0x18000, written);
 	}
 	fclose(h3_bin);
 	free(h3);
 	printf("Dumped h3.bin\n");
+}
+static Partition* partition_data;
+extern "C" {
+bool OpenPartition() {
 	free(part);
-	if (WDVD_LowOpenPartition((u64) partitionTable[p].PartitionOffset << 2))
+	if (WDVD_LowOpenPartition(PartitionOffset))
 		return false;
 	return true;
 }
-static Partition* partition_data;
-bool Launcher_ReadFST(string path) {
-	//TODO: split
-	// partition header
+bool ReadPartitionHeader() {
 	partition_data = (Partition*) memalign(32, sizeof(Partition));
 	if (WDVD_LowRead(partition_data, 0x2440, 0))
 		return false;
+	return true;
+}
+}
+void DumpBootBin(string path) {
 	FILE *boot_bin = fopen(PathCombine(path, "boot.bin").c_str(), "wb");
 	if (!boot_bin) {
 		printf("Failed to open %s for write\n", PathCombine(path, "boot.bin").c_str());
@@ -253,42 +267,48 @@ bool Launcher_ReadFST(string path) {
 	}
 	fclose(boot_bin);
 	printf("Dumped boot.bin\n");
-	// bi2
+}
+void DumpBi2(string path) {
 	FILE *bi2_bin = fopen(PathCombine(path, "bi2.bin").c_str(), "wb");
 	if (!bi2_bin) {
 		printf("Failed to open %s for write\n", PathCombine(path, "bi2.bin").c_str());
 	}
-	written = fwrite(partition_data->bi2_bin, 1, 0x2000, bi2_bin);
+	u32 written = fwrite(partition_data->bi2_bin, 1, 0x2000, bi2_bin);
 	if (written != 0x2000) {
 		printf("Expected %d got %ld\n", 0x2000, written);
 		fclose(bi2_bin);
 	}
 	fclose(bi2_bin);
 	printf("Dumped bi2.bin\n");
-	// fst
+}
+extern "C" {
+bool Launcher_ReadFST() {
 	fst = (DiscNode*)memalign(32, (u64) partition_data->fst_size << 2);
 	if (WDVD_LowRead(fst, partition_data->fst_size, (u64) partition_data->fst_offset << 2))
 		return false;
+	return true;
+}
+}
+void DumpFst(string path) {
 	FILE *fst_bin = fopen(PathCombine(path, "fst.bin").c_str(), "wb");
 	if (!fst_bin) {
 		printf("Failed to open %s for write\n", PathCombine(path, "fst.bin").c_str());
 	}
-	written = fwrite(fst, 1, partition_data->fst_size, fst_bin);
+	u32 written = fwrite(fst, 1, partition_data->fst_size, fst_bin);
 	if (written != partition_data->fst_size) {
 		printf("Expected %ld got %ld\n", partition_data->fst_size, written);
 		fclose(fst_bin);
 	}
 	fclose(fst_bin);
 	printf("Dumped fst.bin\n");
-	return true;
 }
 extern "C" {
-	bool Launcher_DiscInserted() {
-		bool cover;
-		if (!WDVD_VerifyCover(&cover))
-			return cover;
-		return false;
-	}
+bool Launcher_DiscInserted() {
+	bool cover;
+	if (!WDVD_VerifyCover(&cover))
+		return cover;
+	return false;
+}
 }
 #define HOME_EXIT() { \
 	WPAD_ScanPads(); \
@@ -481,18 +501,35 @@ int main(void) {
 	mkdir(PathCombine(DumpDirectory, "disc").c_str(), 0777);
 	mkdir(PathCombine(DumpDirectory, "files").c_str(), 0777);
 	mkdir(PathCombine(DumpDirectory, "sys").c_str(), 0777);
-	DumpDiscHeader(PathCombine(DumpDirectory, "disc")); // has to be done here
+	DumpDiscHeader(PathCombine(DumpDirectory, "disc"));
 	DumpRegionBin(PathCombine(DumpDirectory, "disc"));
-	if (!(ReadPartitionTable(DumpDirectory))) {
+	if (!ReadPartitionTable()) {
+		printf("Could not find a suitable game partition. Press Home to exit, and try again.\n");
+		while (true)
+			HOME_EXIT();
+	}
+	DumpTicket(DumpDirectory);
+	DumpTmd(DumpDirectory);
+	DumpCerts(DumpDirectory);
+	DumpH3(DumpDirectory);
+	if (!OpenPartition()) {
 		printf("Could not open the game partition. Press Home to exit, and try again.\n");
 		while (true)
 			HOME_EXIT();
 	}
-	if (!Launcher_ReadFST(PathCombine(DumpDirectory, "sys"))) {
-		printf("There was an error reading the disc. Press Home to exit, and try again.\n");
+	if (!ReadPartitionHeader()) {
+		printf("Error reading the partition data. Press Home to exit, and try again.\n");
 		while (true)
 			HOME_EXIT();
 	}
+	DumpBootBin(PathCombine(DumpDirectory, "sys"));
+	DumpBi2(PathCombine(DumpDirectory, "sys"));
+	if (!Launcher_ReadFST()) {
+		printf("Error reading the FST data. Press Home to exit, and try again.\n");
+		while (true)
+			HOME_EXIT();
+	}
+	DumpFst(PathCombine(DumpDirectory, "sys"));
 	DumpEarlyMemory(DumpDirectory);
 	DumpApploader(PathCombine(DumpDirectory, "sys"));
 	DumpMainDol(PathCombine(DumpDirectory, "sys"));
@@ -503,6 +540,7 @@ int main(void) {
 	}
 	fatUnmount("sd:");
 	fatUnmount("usb:");
+	WDVD_StopMotor();
 	WDVD_Close();
 	printf("\nWe're all done.\n");
 	printf("Press Home to exit.\n\n\n");
