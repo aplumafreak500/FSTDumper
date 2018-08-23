@@ -305,7 +305,7 @@ void DumpFst(string path) {
 extern "C" {
 bool Launcher_DiscInserted() {
 	bool cover;
-	if (!WDVD_VerifyCover(&cover))
+	if (!(WDVD_VerifyCover(&cover) != 0))
 		return cover;
 	return false;
 }
