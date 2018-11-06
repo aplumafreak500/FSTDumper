@@ -31,7 +31,7 @@
 #include <string>
 using std::string;
 
-#include "main.h"
+#include "structs.h"
 #include "wdvd.h"
 
 #define min(a,b) ((a)>(b) ? (b) : (a))
@@ -147,7 +147,6 @@ void DumpRegionBin(string path) {
 }
 static u64 PartitionOffset;
 static PartitionHeader* part;
-extern "C" {
 bool ReadPartitionTable() {
 	// TODO: Move to main()
 	PartitionTable* partitionTableEntries = (PartitionTable*) memalign(32, sizeof(PartitionTable)*4);
@@ -156,9 +155,21 @@ bool ReadPartitionTable() {
 		free(partitionTableEntries);
 		return false;
 	}
+	u32 written;
+	FILE *debug_ptab = fopen("ptab.bin", "wb");
+	if (!debug_ptab) {
+		printf("Failed to open ptab.bin for write\n");
+		goto read_ptab;
+	}
+	written = fwrite(partitionTableEntries, 1, 0x20, debug_ptab);
+	if (written != 0x20) {
+		printf("Expected %d got %ld\n", 0x20, written);
+	}
+	fclose(debug_ptab);
+read_ptab:
 	u32 t = 0;
 	u32 p = 0;
-	PartitionTableEntry* partitionTable;
+	PartitionTableEntry* partitionTable = NULL;
 	for (t = 0; t < 4; t++) {
 		printf("[Debug] Looking for a suitable partiton in sub-table %ld (offset 0x%08llx)\n", t, (u64) partitionTableEntries[t].PartitionEntryOffset << 2);
 		printf("[Debug] Number of partitions in table %ld: %ld\n", t, partitionTableEntries[t].PartitionEntryCount);
@@ -171,6 +182,19 @@ bool ReadPartitionTable() {
 			free(partitionTableEntries);
 			return false;
 		}
+		char tmp_filename[64];
+		sprintf(tmp_filename, "ptab_%ld.bin", t);
+		debug_ptab = fopen(tmp_filename, "wb");
+		if (!debug_ptab) {
+			printf("Failed to open %s for write\n", tmp_filename);
+			goto read_ptabentry;
+		}
+		written = fwrite(partitionTableEntries, 1, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, debug_ptab);
+		if (written != sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount) {
+			printf("Expected %ld got %ld\n", sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, written);
+		}
+		fclose(debug_ptab);
+read_ptabentry:
 		for (p = 0; p < partitionTableEntries[t].PartitionEntryCount; p++) {
 			printf("[Debug] Partition %ld (id 0x%lx, offset 0x%08llx)\n", p, partitionTable[p].PartitionID, (u64) partitionTable[p].PartitionOffset << 2);
 			//TODO: Start dumping here
@@ -204,7 +228,6 @@ bool ReadUnecryptedPartitionData() {
 	if (WDVD_LowUnencryptedRead(part, 0x2c0, PartitionOffset))
 		return false;
 	return true;
-}
 }
 void DumpTicket(string path) {
 	FILE *tik_bin = fopen(PathCombine(path, "ticket.bin").c_str(), "wb");
@@ -278,7 +301,6 @@ void DumpH3(string path) {
 	free(h3);
 }
 static Partition* partition_data;
-extern "C" {
 bool OpenPartition() {
 	free(part);
 	if (WDVD_LowOpenPartition(PartitionOffset))
@@ -291,7 +313,6 @@ bool ReadPartitionHeader() {
 	if (WDVD_LowRead(partition_data, 0x2440, 0))
 		return false;
 	return true;
-}
 }
 void DumpBootBin(string path) {
 	FILE *boot_bin = fopen(PathCombine(path, "boot.bin").c_str(), "wb");
@@ -323,14 +344,12 @@ void DumpBi2(string path) {
 	}
 	fclose(bi2_bin);
 }
-extern "C" {
 bool Launcher_ReadFST() {
 	fst = (DiscNode*)memalign(32, (u64) partition_data->fst_size << 2);
 	if (!fst) return false;
 	if (WDVD_LowRead(fst, partition_data->fst_size, (u64) partition_data->fst_offset << 2))
 		return false;
 	return true;
-}
 }
 void DumpFst(string path) {
 	FILE *fst_bin = fopen(PathCombine(path, "fst.bin").c_str(), "wb");
@@ -348,13 +367,11 @@ void DumpFst(string path) {
 	fclose(fst_bin);
 	free(partition_data);
 }
-extern "C" {
 bool Launcher_DiscInserted() {
 	bool cover;
 	if (!(WDVD_VerifyCover(&cover) != 0))
 		return cover;
 	return false;
-}
 }
 #define HOME_EXIT() { \
 	WPAD_ScanPads(); \

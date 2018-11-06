@@ -106,7 +106,6 @@ struct TMD {
 	u16 padding2;
 	// TMDContent contents[contentCount];
 };
-
 struct Certificate {
 	Signature signature;
 	u32 keyType;
