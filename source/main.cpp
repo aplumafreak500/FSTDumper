@@ -152,6 +152,8 @@ bool ReadPartitionTable() {
 	// TODO: Move to main()
 	PartitionTable* partitionTableEntries = (PartitionTable*) memalign(32, sizeof(PartitionTable)*4);
 	if (!partitionTableEntries) return false;
+	printf("[Debug] partitionTableEntries = 0x%08lx", (u32) partitionTableEntries);
+	sleep(5);
 	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000)) {
 		free(partitionTableEntries);
 		return false;
@@ -167,6 +169,7 @@ bool ReadPartitionTable() {
 		printf("Expected %d got %ld\n", 0x20, written);
 	}
 	fclose(debug_ptab);
+	sleep(5);
 read_ptab:
 	u32 t = 0;
 	u32 p = 0;
@@ -174,11 +177,15 @@ read_ptab:
 	for (t = 0; t < 4; t++) {
 		printf("[Debug] Looking for a suitable partiton in sub-table %ld (offset 0x%08llx)\n", t, (u64) partitionTableEntries[t].PartitionEntryOffset << 2);
 		printf("[Debug] Number of partitions in table %ld: %ld\n", t, partitionTableEntries[t].PartitionEntryCount);
+		sleep(5);
 		if (!partitionTableEntries[t].PartitionEntryCount) {
 			printf("[Debug] Table %ld has no partitions!", t);
+			sleep(5);
 		}
 		else {
 			partitionTable = (PartitionTableEntry*) memalign(32, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount);
+			printf("[Debug] partitionTable = 0x%08lx", (u32) partitionTable);
+			sleep(5);
 			if (!partitionTable) {
 				free(partitionTableEntries);
 				return false;
@@ -201,12 +208,15 @@ read_ptab:
 				printf("Expected %ld got %ld\n", sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, written);
 			}
 			fclose(debug_ptab);
+			sleep(5);
 	read_ptabentry:
 			for (p = 0; p < partitionTableEntries[t].PartitionEntryCount; p++) {
 				printf("[Debug] Partition %ld (id 0x%lx, offset 0x%08llx)\n", p, partitionTable[p].PartitionID, (u64) partitionTable[p].PartitionOffset << 2);
+				sleep(5);
 				//TODO: Start dumping here
 				if (partitionTable[p].PartitionID == 0 && partitionTable[p].PartitionOffset != 0) {
 					printf("[Debug] Game partition found! [table %ld, partition %ld]\n", t, p);
+					sleep(5);
 					break;
 				}
 			}
@@ -217,6 +227,7 @@ read_ptab:
 			free(partitionTable);
 			// might not be necessary
 			partitionTable = NULL;
+			sleep(5);
 		}
 	}
 	if (t >= 4) {
