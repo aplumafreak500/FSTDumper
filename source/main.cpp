@@ -394,71 +394,6 @@ void DumpFst(string path) {
 	fclose(fst_bin);
 	free(partition_data);
 }
-bool Launcher_DiscInserted() {
-	bool cover;
-	if (!(WDVD_VerifyCover(&cover) != 0))
-		return cover;
-	return false;
-}
-#define HOME_EXIT() { \
-	WPAD_ScanPads(); \
-	if (WPAD_ButtonsDown(0) & (WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME)) { \
-		if (*(vu32*)0x80001804 != 0x53545542) \
-			SYS_ResetSystem(SYS_RETURNTOMENU, 0, 0); \
-		else \
-			return 0; \
-	} \
-	VIDEO_WaitVSync(); \
-}
-bool DumpFolder(DiscNode* node, string path) {
-	if (!node)
-		return false;
-	if (!node->Type)
-		return false;
-	mkdir(path.c_str(), 0777);
-	printf("\nDumping to %s...", path.c_str());
-	for (DiscNode* file = node + 1; file < fst + node->Size; ) {
-		string name = PathCombine(path, (char*) (fst + fst->Size + node->NameOffset));
-		if (file->Type) {
-			bool ret = DumpFolder(file, name);
-			if (!ret) {
-				free(fst); // might be overkill
-				return false;
-			}
-		}
-		else {
-			FILE* fd = fopen(name.c_str(), "wb");
-			if (fd) {
-				static u8 buffer[0x8000] ATTRIBUTE_ALIGN(32);
-				memset(buffer, 0, 0x8000);
-				u32 written = 0;
-				u32 toRead = (file->Size > 0x8000) ? 0x8000 : file->Size;
-				while (written < file->Size) {
-					if (WDVD_LowRead(buffer, toRead, ((u64)file->DataOffset << 2) + written)) {
-						free(fst); // might be overkill
-						return false;
-					}
-					int towrite = MIN(sizeof(buffer), file->Size - written);
-					fwrite(buffer, 1, towrite, fd);
-					written += towrite;
-					if ( file->Size - written < 0x8000 ) toRead = file->Size - written;
-				}
-				fclose(fd);
-				printf(".");
-			}
-			else {
-				free(fst); // might be overkill
-				return false;
-			}
-		}
-		file = file->Type ? fst + file->Size : file + 1;
-	}
-	return true;
-}
-bool DumpFolder(const char* disc, string path) {
-	DiscNode* node = !strcmp(disc, "/") ? fst : RVL_FindNode(disc);
-	return DumpFolder(node, path);
-}
 void DumpEarlyMemory(string path) {
 	FILE *header_nfo = fopen(PathCombine(path, "earlymem.bin").c_str(), "wb");
 	if (!header_nfo) {
@@ -546,6 +481,71 @@ void DumpMainDol(string path) {
 	}
 	fclose(main_dol);
 	free(dol);
+}
+bool DumpFolder(DiscNode* node, string path) {
+	if (!node)
+		return false;
+	if (!node->Type)
+		return false;
+	mkdir(path.c_str(), 0777);
+	printf("\nDumping to %s...", path.c_str());
+	for (DiscNode* file = node + 1; file < fst + node->Size; ) {
+		string name = PathCombine(path, (char*) (fst + fst->Size + node->NameOffset));
+		if (file->Type) {
+			bool ret = DumpFolder(file, name);
+			if (!ret) {
+				free(fst); // might be overkill
+				return false;
+			}
+		}
+		else {
+			FILE* fd = fopen(name.c_str(), "wb");
+			if (fd) {
+				static u8 buffer[0x8000] ATTRIBUTE_ALIGN(32);
+				memset(buffer, 0, 0x8000);
+				u32 written = 0;
+				u32 toRead = (file->Size > 0x8000) ? 0x8000 : file->Size;
+				while (written < file->Size) {
+					if (WDVD_LowRead(buffer, toRead, ((u64)file->DataOffset << 2) + written)) {
+						free(fst); // might be overkill
+						return false;
+					}
+					int towrite = MIN(sizeof(buffer), file->Size - written);
+					fwrite(buffer, 1, towrite, fd);
+					written += towrite;
+					if ( file->Size - written < 0x8000 ) toRead = file->Size - written;
+				}
+				fclose(fd);
+				printf(".");
+			}
+			else {
+				free(fst); // might be overkill
+				return false;
+			}
+		}
+		file = file->Type ? fst + file->Size : file + 1;
+	}
+	return true;
+}
+bool DumpFolder(const char* disc, string path) {
+	DiscNode* node = !strcmp(disc, "/") ? fst : RVL_FindNode(disc);
+	return DumpFolder(node, path);
+}
+bool Launcher_DiscInserted() {
+	bool cover;
+	if (!(WDVD_VerifyCover(&cover) != 0))
+		return cover;
+	return false;
+}
+#define HOME_EXIT() { \
+	WPAD_ScanPads(); \
+	if (WPAD_ButtonsDown(0) & (WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME)) { \
+		if (*(vu32*)0x80001804 != 0x53545542) \
+			SYS_ResetSystem(SYS_RETURNTOMENU, 0, 0); \
+		else \
+			return 0; \
+	} \
+	VIDEO_WaitVSync(); \
 }
 int main(void) {
 	VIDEO_Init();
