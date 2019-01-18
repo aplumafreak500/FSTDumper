@@ -119,7 +119,7 @@ void DumpDiscHeader(string path) {
 	}
 	u32 written = fwrite(hdr, 1, 0x100, hdr_bin);
 	if (written != 0x100) {
-		printf("Expected %d got %ld\n", 0x100, written);
+		printf("Expected %d got %d\n", 0x100, written);
 	}
 	else {
 		printf("Dumped header.bin\n");
@@ -138,7 +138,7 @@ void DumpRegionBin(string path) {
 	}
 	u32 written = fwrite(rgn, 1, 0x20, rgn_bin);
 	if (written != 0x20) {
-		printf("Expected %d got %ld\n", 0x20, written);
+		printf("Expected %d got %d\n", 0x20, written);
 	}
 	else {
 		printf("Dumped region.bin\n");
@@ -152,8 +152,7 @@ bool ReadPartitionTable() {
 	// TODO: Move to main()
 	PartitionTable* partitionTableEntries = (PartitionTable*) memalign(32, sizeof(PartitionTable)*4);
 	if (!partitionTableEntries) return false;
-	printf("[Debug] partitionTableEntries = 0x%08lx", (u32) partitionTableEntries);
-	sleep(5);
+	printf("[Debug] partitionTableEntries = 0x%08x\n", (u32) partitionTableEntries);
 	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000)) {
 		free(partitionTableEntries);
 		return false;
@@ -166,36 +165,32 @@ bool ReadPartitionTable() {
 	}
 	written = fwrite(partitionTableEntries, 1, 0x20, debug_ptab);
 	if (written != 0x20) {
-		printf("Expected %d got %ld\n", 0x20, written);
+		printf("Expected %d got %d\n", 0x20, written);
 	}
 	fclose(debug_ptab);
-	sleep(5);
 read_ptab:
 	u32 t = 0;
 	u32 p = 0;
 	PartitionTableEntry* partitionTable = NULL;
 	for (t = 0; t < 4; t++) {
-		printf("[Debug] Looking for a suitable partiton in sub-table %ld (offset 0x%08llx)\n", t, (u64) partitionTableEntries[t].PartitionEntryOffset << 2);
-		printf("[Debug] Number of partitions in table %ld: %ld\n", t, partitionTableEntries[t].PartitionEntryCount);
-		sleep(5);
+		printf("[Debug] Looking for a suitable partiton in sub-table %d (offset 0x%08llx)\n", t, (u64) partitionTableEntries[t].PartitionEntryOffset << 2);
+		printf("[Debug] Number of partitions in table %d: %d\n", t, partitionTableEntries[t].PartitionEntryCount);
 		if (!partitionTableEntries[t].PartitionEntryCount) {
-			printf("[Debug] Table %ld has no partitions!", t);
-			sleep(5);
+			printf("[Debug] Table %d has no partitions!\n", t);
 		}
 		else {
 			partitionTable = (PartitionTableEntry*) memalign(32, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount);
-			printf("[Debug] partitionTable = 0x%08lx", (u32) partitionTable);
-			sleep(5);
+			printf("[Debug] partitionTable = 0x%08x\n", (u32) partitionTable);
 			if (!partitionTable) {
 				free(partitionTableEntries);
 				return false;
 			}
-			if (WDVD_LowUnencryptedRead(partitionTable, (u64) partitionTableEntries[t].PartitionEntryOffset << 2, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount)) {
+			if (WDVD_LowUnencryptedRead(partitionTable, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, (u64) partitionTableEntries[t].PartitionEntryOffset << 2)) {
 				free(partitionTableEntries);
 				return false;
 			}
 			char* tmp_filename = (char*) memalign(32, 24);
-			sprintf(tmp_filename, "/FSTDump/ptab_%ld.bin", t);
+			sprintf(tmp_filename, "/FSTDump/ptab_%d.bin", t);
 			debug_ptab = fopen(tmp_filename, "wb");
 			if (!debug_ptab) {
 				printf("Failed to open %s for write\n", tmp_filename);
@@ -205,29 +200,25 @@ read_ptab:
 			tmp_filename = NULL;
 			written = fwrite(partitionTableEntries, 1, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, debug_ptab);
 			if (written != sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount) {
-				printf("Expected %ld got %ld\n", sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, written);
+				printf("Expected %d got %d\n", sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, written);
 			}
 			fclose(debug_ptab);
-			sleep(5);
 	read_ptabentry:
 			for (p = 0; p < partitionTableEntries[t].PartitionEntryCount; p++) {
-				printf("[Debug] Partition %ld (id 0x%lx, offset 0x%08llx)\n", p, partitionTable[p].PartitionID, (u64) partitionTable[p].PartitionOffset << 2);
-				sleep(5);
+				printf("[Debug] Partition %d (id 0x%x, offset 0x%08llx)\n", p, partitionTable[p].PartitionID, (u64) partitionTable[p].PartitionOffset << 2);
 				//TODO: Start dumping here
 				if (partitionTable[p].PartitionID == 0 && partitionTable[p].PartitionOffset != 0) {
-					printf("[Debug] Game partition found! [table %ld, partition %ld]\n", t, p);
-					sleep(5);
+					printf("[Debug] Game partition found! [table %d, partition %d]\n", t, p);
 					break;
 				}
 			}
 			if (p < partitionTableEntries[t].PartitionEntryCount) {
 				break;
 			}
-			printf("[Debug] No valid partitions found in table %ld, moving on...\n", t);
+			printf("[Debug] No valid partitions found in table %d, moving on...\n", t);
 			free(partitionTable);
 			// might not be necessary
 			partitionTable = NULL;
-			sleep(5);
 		}
 	}
 	if (t >= 4) {
@@ -260,7 +251,7 @@ void DumpTicket(string path) {
 	}
 	u32 written = fwrite(&part->ticket, 1, 0x2a4, tik_bin);
 	if (written != 0x2a4) {
-		printf("Expected %d got %ld\n", 0x2a4, written);
+		printf("Expected %d got %d\n", 0x2a4, written);
 	}
 	else {
 		printf("Dumped ticket.bin\n");
@@ -279,7 +270,7 @@ void DumpTmd(string path) {
 	if (WDVD_LowUnencryptedRead(disc_tmd, part->tmdSize, (u64) part->tmdOffset << 2)) return;
 	u32 written = fwrite(disc_tmd, 1, part->tmdSize, tmd_bin);
 	if (written != part->tmdSize) {
-		printf("Expected %ld got %ld\n", part->tmdSize, written);
+		printf("Expected %d got %d\n", part->tmdSize, written);
 	}
 	else {
 		printf("Dumped tmd.bin\n");
@@ -299,7 +290,7 @@ void DumpCerts(string path) {
 	if (WDVD_LowUnencryptedRead(crt, part->certSize, (u64) part->certOffset << 2)) return;
 	u32 written = fwrite(crt, 1, part->certSize, crt_bin);
 	if (written != part->certSize) {
-		printf("Expected %ld got %ld\n", part->certSize, written);
+		printf("Expected %d got %d\n", part->certSize, written);
 	}
 	else {
 		printf("Dumped cert.bin\n");
@@ -319,7 +310,7 @@ void DumpH3(string path) {
 	if (WDVD_LowUnencryptedRead(h3, 0x18000, (u64) part->h3Offset << 2)) return;
 	u32 written = fwrite(h3, 1, 0x18000, h3_bin);
 	if (written != 0x18000) {
-		printf("Expected %d got %ld\n", 0x18000, written);
+		printf("Expected %d got %d\n", 0x18000, written);
 	}
 	else {
 		printf("Dumped h3.bin\n");
@@ -354,7 +345,7 @@ void DumpBootBin(string path) {
 	}
 	u32 written = fwrite(&partition_data->boot_bin, 1, 0x420, boot_bin); // reads past boot.bin, but memory was set anyway by above WDVD_LowRead call, so no worrying about leaks, etc.
 	if (written != 0x420) {
-		printf("Expected %d got %ld\n", 0x420, written);
+		printf("Expected %d got %d\n", 0x420, written);
 	}
 	else {
 		printf("Dumped boot.bin\n");
@@ -370,7 +361,7 @@ void DumpBi2(string path) {
 	}
 	u32 written = fwrite(partition_data->bi2_bin, 1, 0x2000, bi2_bin);
 	if (written != 0x2000) {
-		printf("Expected %d got %ld\n", 0x2000, written);
+		printf("Expected %d got %d\n", 0x2000, written);
 	}
 	else {
 		printf("Dumped bi2.bin\n");
@@ -397,7 +388,7 @@ void DumpFst(string path) {
 	}
 	u32 written = fwrite(fst, 1, partition_data->fst_size, fst_bin);
 	if (written != partition_data->fst_size) {
-		printf("Expected %ld got %ld\n", partition_data->fst_size, written);
+		printf("Expected %d got %d\n", partition_data->fst_size, written);
 	}
 	else {
 		printf("Dumped fst.bin\n");
@@ -413,7 +404,7 @@ void DumpEarlyMemory(string path) {
 	}
 	u32 written = fwrite((void*)0x80000000, 1, 0x4000, header_nfo);
 	if (written != 0x4000) {
-		printf("Expected %d got %ld\n", 0x4000, written);
+		printf("Expected %d got %d\n", 0x4000, written);
 	}
 	else {
 		printf("Dumped earlymem.bin\n");
@@ -445,7 +436,7 @@ void DumpApploader(string path) {
 	}
 	u32 written = fwrite(apl, 1, max, appl_img);
 	if (written != max) {
-		printf("Expected %ld got %ld\n", max, written);
+		printf("Expected %d got %d\n", max, written);
 	}
 	else {
 		printf("Dumped apploader.img\n");
@@ -485,7 +476,7 @@ void DumpMainDol(string path) {
 	}
 	u32 written = fwrite(dol, 1, max, main_dol);
 	if (written != max) {
-		printf("Expected %ld got %ld\n", max, written);
+		printf("Expected %d got %d\n", max, written);
 	}
 	else {
 		printf("Dumped main.dol\n");
