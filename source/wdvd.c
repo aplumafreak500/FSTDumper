@@ -185,15 +185,31 @@ void WDVD_Close() {
 	IOS_Close(di_fd);
 	di_fd = -1;
 }
+/* old version
 int WDVD_VerifyCover(bool* cover) {
 	*cover = false;
 	if (di_fd<0)
 		return -1;
 
 	inbuffer[0] = 0xdb000000;
+	// TODO: Use cmd 0x88 instead; Dolphin ignores this command
 	if (IOS_Ioctl(di_fd, 0xdb, inbuffer, 0x20, inbuffer + 0x08, 0x20) != 1)
 		return -1;
 
 	*cover = !inbuffer[0x08];
 	return 0;
+} */
+int WDVD_VerifyCover(u8* cover) {
+	*cover = 0;
+	if (di_fd<0)
+		return -1;
+
+	inbuffer[0] = 0x88000000;
+	if (IOS_Ioctl(di_fd, 0x88, inbuffer, 0x20, inbuffer + 0x08, 0x20) != 1)
+		return -1;
+
+	*cover = inbuffer[0x08];
+	return 0;
 }
+// TODO: WDVD_RequestError (cmd 0xe0; result=outbuf[0])
+// TODO: WDVD_WaitForCover(cmd 0x79)

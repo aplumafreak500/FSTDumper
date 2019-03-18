@@ -151,9 +151,15 @@ static PartitionHeader* part;
 bool ReadPartitionTable() {
 	// TODO: Move to main()
 	PartitionTable* partitionTableEntries = (PartitionTable*) memalign(32, sizeof(PartitionTable)*4);
-	if (!partitionTableEntries) return false;
-	printf("[Debug] partitionTableEntries = 0x%08x\n", (u32) partitionTableEntries);
-	if (WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000)) {
+	if (!partitionTableEntries) {
+		printf("out of memory\n");
+		return false;
+	}
+	u32 ret;
+	ret = WDVD_LowUnencryptedRead(partitionTableEntries, 0x20, 0x40000);
+	if (ret) {
+		// TODO: WDVD_RequestError
+		printf("WDVD_LowUnecryptedRead returned %d\n", ret);
 		free(partitionTableEntries);
 		return false;
 	}
@@ -180,12 +186,14 @@ read_ptab:
 		}
 		else {
 			partitionTable = (PartitionTableEntry*) memalign(32, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount);
-			printf("[Debug] partitionTable = 0x%08x\n", (u32) partitionTable);
 			if (!partitionTable) {
+				printf("out of memory\n");
 				free(partitionTableEntries);
 				return false;
 			}
-			if (WDVD_LowUnencryptedRead(partitionTable, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, (u64) partitionTableEntries[t].PartitionEntryOffset << 2)) {
+			ret = WDVD_LowUnencryptedRead(partitionTable, sizeof(PartitionTableEntry) * partitionTableEntries[t].PartitionEntryCount, (u64) partitionTableEntries[t].PartitionEntryOffset << 2);
+			if (ret) {
+				printf("WDVD_LowUnecryptedRead returned %d\n", ret);
 				free(partitionTableEntries);
 				return false;
 			}
@@ -223,7 +231,7 @@ read_ptab:
 	}
 	if (t >= 4) {
 		printf("No valid game partitions found!\n");
-		free(partitionTable);
+		if (partitionTable) free(partitionTable);
 		free(partitionTableEntries);
 		return false;
 	}
@@ -234,8 +242,13 @@ read_ptab:
 }
 bool ReadUnecryptedPartitionData() {
 	part = (PartitionHeader*) memalign(32, sizeof(PartitionHeader));
-	if (!part) return false;
-	if (WDVD_LowUnencryptedRead(part, 0x2c0, PartitionOffset)) {
+	if (!part) {
+		printf("out of memory\n");
+		return false;
+	}
+	u32 ret = WDVD_LowUnencryptedRead(part, 0x2c0, PartitionOffset);
+	if (ret) {
+		printf("WDVD_LowUnecryptedRead returned %d\n", ret);
 		free(part);
 		part = NULL;
 		return false;
@@ -267,7 +280,11 @@ void DumpTmd(string path) {
 		printf("Failed to open %s for write\n", PathCombine(path, "tmd.bin").c_str());
 		return;
 	}
-	if (WDVD_LowUnencryptedRead(disc_tmd, part->tmdSize, (u64) part->tmdOffset << 2)) return;
+	u32 ret = WDVD_LowUnencryptedRead(disc_tmd, part->tmdSize, (u64) part->tmdOffset << 2);
+	if (ret) {
+		printf("WDVD_LowUnecryptedRead returned %d\n", ret);
+		return;
+	}
 	u32 written = fwrite(disc_tmd, 1, part->tmdSize, tmd_bin);
 	if (written != part->tmdSize) {
 		printf("Expected %d got %d\n", part->tmdSize, written);
@@ -287,7 +304,11 @@ void DumpCerts(string path) {
 		printf("Failed to open %s for write\n", PathCombine(path, "cert.bin").c_str());
 		return;
 	}
-	if (WDVD_LowUnencryptedRead(crt, part->certSize, (u64) part->certOffset << 2)) return;
+	u32 ret = WDVD_LowUnencryptedRead(crt, part->certSize, (u64) part->certOffset << 2);
+	if (ret) {
+		printf("WDVD_LowUnecryptedRead returned %d\n", ret);
+		return;
+	}
 	u32 written = fwrite(crt, 1, part->certSize, crt_bin);
 	if (written != part->certSize) {
 		printf("Expected %d got %d\n", part->certSize, written);
@@ -307,7 +328,11 @@ void DumpH3(string path) {
 		printf("Failed to open %s for write\n", PathCombine(path, "h3.bin").c_str());
 		return;
 	}
-	if (WDVD_LowUnencryptedRead(h3, 0x18000, (u64) part->h3Offset << 2)) return;
+	u32 ret = WDVD_LowUnencryptedRead(h3, 0x18000, (u64) part->h3Offset << 2);
+	if (ret) {
+		printf("WDVD_LowUnecryptedRead returned %d\n", ret);
+		return;
+	}
 	u32 written = fwrite(h3, 1, 0x18000, h3_bin);
 	if (written != 0x18000) {
 		printf("Expected %d got %d\n", 0x18000, written);
@@ -322,14 +347,19 @@ static Partition* partition_data;
 bool OpenPartition() {
 	free(part);
 	part = NULL;
-	if (!WDVD_LowOpenPartition(PartitionOffset))
+	if (WDVD_LowOpenPartition(PartitionOffset) != 0)
 		return false;
 	return true;
 }
 bool ReadPartitionHeader() {
 	partition_data = (Partition*) memalign(32, sizeof(Partition));
-	if (!partition_data) return false;
-	if (WDVD_LowRead(partition_data, 0x2440, 0)) {
+	if (!partition_data) {
+		printf("out of memory\n");
+		return false;
+	}
+	u32 ret = WDVD_LowRead(partition_data, 0x2440, 0);
+	if (ret) {
+		printf("WDVD_LowRead returned %d\n", ret);
 		free(partition_data);
 		partition_data = NULL;
 		return false;
@@ -371,8 +401,13 @@ void DumpBi2(string path) {
 bool Launcher_ReadFST() {
 	if (!partition_data) return false;
 	fst = (DiscNode*)memalign(32, (u64) partition_data->fst_size << 2);
-	if (!fst) return false;
-	if (WDVD_LowRead(fst, partition_data->fst_size, (u64) partition_data->fst_offset << 2)) {
+	if (!fst) {
+		printf("out of memory\n");
+		return false;
+	}
+	u32 ret = WDVD_LowRead(fst, partition_data->fst_size, (u64) partition_data->fst_offset << 2);
+	if (ret) {
+		printf("WDVD_LowRead returned %d\n", ret);
 		free(fst);
 		fst = NULL;
 		return false;
@@ -534,9 +569,10 @@ bool DumpFolder(const char* disc, string path) {
 	return DumpFolder(node, path);
 }
 bool Launcher_DiscInserted() {
-	bool cover;
-	if (!(WDVD_VerifyCover(&cover) != 0))
-		return cover;
+	u8 cover;
+	WDVD_VerifyCover(&cover);
+	if (cover == 2)
+		return true;
 	return false;
 }
 #define HOME_EXIT() { \

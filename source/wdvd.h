@@ -34,7 +34,7 @@ int WDVD_LowUnencryptedRead(void *buf, u32 len, u64 offset);
 int WDVD_LowReadDiskId();
 int WDVD_LowOpenPartition(u64 offset);
 bool WDVD_LowClosePartition();
-int WDVD_VerifyCover(bool* cover);
+int WDVD_VerifyCover(u8* cover);
 tmd* WDVD_GetTMD();
 void WDVD_Close();
 int WDVD_LowReadBCA(void *buf);
