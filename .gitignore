@@ -2,5 +2,5 @@
 *.dol
 *.elf
 *.[a|o]
-*.list
+*.lst
 *.map
