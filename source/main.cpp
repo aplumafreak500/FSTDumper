@@ -599,7 +599,7 @@ int main(void) {
 	VIDEO_WaitVSync();
 	__exception_setreload(15); // Because I'm on a Wii U, this makes it less of a hassle to reset back to the HBC
 	printf("\x1b[2;0H");
-	printf("Luma's FST Dumper v1.1\nBased on Reggie! Dumper\n\n");
+	printf("Luma's FST Dumper v1.2\nBased on Reggie! Dumper\n\n");
 	printf("Press Home at any time to exit.\n");
 	printf("Looking for SD/USB... ");
 	while (!fatInitDefault())
